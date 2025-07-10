@@ -5,5 +5,11 @@ package tech.baizi.autoexchange.core.strategy;
  */
 public interface IApplyExchangeStrategy {
 
-    Object applyExchange(Object rootObject);
+    /**
+     * 在对象上应用汇率转换
+     *
+     * @param object 对象
+     * @return 应用后的对象
+     */
+    Object applyExchange(Object object);
 }

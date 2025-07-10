@@ -44,33 +44,23 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
         if (visitedMap.containsKey(object)) {
             return visitedMap.get(object);
         }
+
         // 关键：在深入递归之前，先将当前对象放入visitedMap，值为自身。
         // 这可以正确处理A->B, B->A的循环。当B处理时发现A已在map中，会直接返回A的实例。
-        visitedMap.put(object, object);
+        // 还需要考虑引用过期的问题，使用两阶段逻辑实现，一阶段填充占位，二阶段填充真实值
+        // 【第一阶段：创建并注册占位符】
+        Object placeholder = createPlaceholder(object);
+        visitedMap.put(object, placeholder);
 
         // 如果对象是集合类型，遍历集合中的每个元素，然后依次处理，并添加到新的集合中。
         if (object instanceof Collection) {
-            Collection<?> collection = (Collection<?>) object;
-            List<Object> newList = new ArrayList<>(collection.size());
-            for (Object o : collection) {
-                Object e = processRecursively(o, visitedMap);
-
-                newList.add(e);
-            }
-            visitedMap.put(object, newList);
-            return newList;
+            // 填充数据到placeholder中
+            return populateCollection(object, visitedMap, (Collection<Object>) placeholder);
         }
 
         // 如果是map类型，处理方式和集合类似
         if (object instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) object;
-            Map<Object, Object> newMap = new LinkedHashMap<>();
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                Object value = processRecursively(entry.getValue(), visitedMap);
-                newMap.put(entry.getKey(), value); // 递归
-            }
-            visitedMap.put(object, newMap); // 用处理后的新Map覆盖，创建新的对象树，和原来的脱钩，避免造成混乱
-            return newMap;
+            return populateMap(object, visitedMap, (Map<Object, Object>) placeholder);
         }
 
         // --- 核心POJO处理逻辑 ---
@@ -92,10 +82,36 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
                 logger.warning("Failed to introspect property " + pd.getReadMethod().getName() + " of class " + object.getClass().getName());
             }
         }
+
+        //【第二阶段：填充占位符】
         Object finalObject = decidedNodeTransformation(object, processedProperties, hasChildrenChanged);
-        visitedMap.put(object, finalObject);
+
+        // 如果最终结果是一个Map (Append模式)，我们需要把数据填充到我们之前创建的placeholder中，
+        // 而不是直接返回一个新的Map实例。
+        if (placeholder instanceof Map && finalObject instanceof Map) {
+            ((Map<String, Object>) placeholder).putAll((Map<String, Object>) finalObject);
+            return placeholder;
+        }
+
+//        visitedMap.put(object, finalObject);
         return finalObject;
     }
+
+    private Object populateCollection(Object originalCollection, Map<Object, Object> visitedMap, Collection<Object> placeholderList) {
+        for (Object item : (Collection<?>) originalCollection) {
+            placeholderList.add(processRecursively(item, visitedMap));
+        }
+        return placeholderList;
+    }
+
+    private Object populateMap(Object originalMap, Map<Object, Object> visitedMap, Map<Object, Object> placeholderMap) {
+        for (Map.Entry<?, ?> entry : ((Map<?, ?>) originalMap).entrySet()) {
+            placeholderMap.put(entry.getKey(), processRecursively(entry.getValue(), visitedMap));
+        }
+        return placeholderMap;
+    }
+
+    protected abstract Object createPlaceholder(Object object);
 
     private boolean isLeafType(Class<?> clazz) {
         return clazz.isPrimitive() || clazz.getName().startsWith("java.lang") || clazz.getName().startsWith("java.math");

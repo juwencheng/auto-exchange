@@ -10,11 +10,9 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +20,16 @@ public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy i
     private final Logger logger = Logger.getLogger(AppendApplyExchangeStrategy.class.getName());
 
     public AppendApplyExchangeStrategy() {
+    }
+
+    @Override
+    protected Object createPlaceholder(Object object) {
+        if (object instanceof Collection) {
+            return new LinkedList<>();
+        } else if (object instanceof Map) {
+            return new HashMap<>(((Map<?, ?>) object).size());
+        }
+        return new LinkedHashMap<>();
     }
 
     @Override
