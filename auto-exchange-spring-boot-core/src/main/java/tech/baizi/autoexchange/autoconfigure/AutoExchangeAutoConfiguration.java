@@ -6,11 +6,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 import tech.baizi.autoexchange.aspect.AutoExchangeAspect;
+import tech.baizi.autoexchange.core.support.TypedResultWrapper;
+import tech.baizi.autoexchange.core.support.TypedResultWrapperSerializer;
 import tech.baizi.autoexchange.provider.IDataProvider;
 import tech.baizi.autoexchange.core.strategy.AppendApplyExchangeStrategy;
 import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
@@ -74,6 +77,11 @@ public class AutoExchangeAutoConfiguration {
     @Bean
     public AutoExchangeAspect autoExchangeAspect(IApplyExchangeStrategy applyExchangeStrategy) {
         return new AutoExchangeAspect(applyExchangeStrategy);
+    }
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer exchangeWrapperSerializerCustomizer() {
+        return builder -> builder.serializerByType(TypedResultWrapper.class, new TypedResultWrapperSerializer());
     }
 
 }

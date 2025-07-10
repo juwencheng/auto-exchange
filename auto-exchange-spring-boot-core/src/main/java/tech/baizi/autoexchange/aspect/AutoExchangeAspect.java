@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Pointcut;
 //import org.springframework.core.Ordered;
 //import org.springframework.core.annotation.Order;
 import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
+import tech.baizi.autoexchange.core.support.TypedResultWrapper;
 
 // 关键：设置一个非常低的优先级（即一个非常大的数值）
 // 这能确保我们的切面在大多数其他切面（如@Transactional, @Cacheable）之后执行
@@ -29,6 +30,15 @@ public class AutoExchangeAspect {
 
     @Around("autoExchangeEnableMethods()")
     public Object handleExchange(ProceedingJoinPoint joinPoint) throws Throwable {
-        return applyExchangeStrategy.applyExchange(joinPoint);
+        Object originalResult = joinPoint.proceed();
+        if (originalResult == null) {
+            return null;
+        }
+
+        Object convertResult = applyExchangeStrategy.applyExchange(originalResult);
+        if (convertResult != originalResult && convertResult != null) {
+            return new TypedResultWrapper(originalResult, originalResult.getClass());
+        }
+        return originalResult;
     }
 }
