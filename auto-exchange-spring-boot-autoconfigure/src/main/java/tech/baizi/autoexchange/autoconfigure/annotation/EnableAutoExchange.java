@@ -1,4 +1,4 @@
-package tech.baizi.autoexchange.core.annotation;
+package tech.baizi.autoexchange.autoconfigure.annotation;
 
 import org.springframework.context.annotation.Import;
 import tech.baizi.autoexchange.autoconfigure.AutoExchangeAutoConfiguration;
