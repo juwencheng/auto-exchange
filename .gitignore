@@ -3,6 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### 版本管理 ###
+pom.xml.backup*
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws
