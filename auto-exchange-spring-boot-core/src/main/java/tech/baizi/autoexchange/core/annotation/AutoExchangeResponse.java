@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
+/**
+ * 在Controller方法上添加此注解，会开启自动汇率转换
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface AutoExchange {
-    // 表示汇率转换后的名字，在APPEND模式下会生效
-    String name() default "";
+@Target(ElementType.METHOD)
+public @interface AutoExchangeResponse {
 }
