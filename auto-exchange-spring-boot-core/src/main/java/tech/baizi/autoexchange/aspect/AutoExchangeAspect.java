@@ -23,7 +23,7 @@ public class AutoExchangeAspect {
     }
 
 
-    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && @annotation(tech.baizi.autoexchange.core.annotation.EnableAutoExchange)")
+    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && @annotation(tech.baizi.autoexchange.core.annotation.AutoExchangeResponse)")
     public void autoExchangeEnableMethods() {
 
     }
