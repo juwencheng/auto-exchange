@@ -13,11 +13,11 @@ public class InPlaceApplyExchangeStrategy extends AbstractApplyExchangeStrategy 
     }
 
     @Override
-    protected Object decidedNodeTransformation(Object originalObject, Map<String, Object> processedProperties, boolean hasChildrenChanged) {
+    protected Object decideNodeTransformation(Object originalObject, Map<String, Object> processedProperties, boolean hasChildrenChanged) {
         // Inplace模式下，子节点永远不会改变类型，所以isPropertyConvert总是false
         // 我们只关心当前节点是否需要原地修改
         ClassMetadata classMetadata = getClassMetadata(originalObject.getClass());
-        if (classMetadata.isApplyExchangeImplementor()) {
+        if (classMetadata != null && classMetadata.isApplyExchangeImplementor()) {
             // ... 执行原地修改的逻辑 ...
             ((IApplyExchange) originalObject).applyExchange("CNY", BigDecimal.valueOf(2));
         }

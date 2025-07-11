@@ -9,17 +9,17 @@ import java.util.List;
  */
 public class ClassMetadata {
     /**
-     * 这个类是否可以转换，如果可以转换，转换此类的同时，还需要继续遍历它的属性中
-     * 是否还有可以转换的类
+     * 类是否实现了IApplyExchange，如果实现了，需要使用INPLACE模式
      */
     private final boolean isApplyExchangeImplementor;
     /**
      * 需要进一步检查的属性列表
+     * 注意，这里面都是非“叶子”属性，需要进一步检查的。
      */
     private final List<PropertyDescriptor> propertiesToInspect;
 
     /**
-     * 需要进行汇率转换的字段
+     * 需要进行汇率转换的字段列表，即有{@link tech.baizi.autoexchange.core.annotation.AutoExchangeField}注解的属性
      */
     private final List<Field> exchangeableFields;
 

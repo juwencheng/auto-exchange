@@ -1,7 +1,7 @@
 package tech.baizi.autoexchange.test.dto;
 
 import tech.baizi.autoexchange.core.IApplyExchange;
-import tech.baizi.autoexchange.core.annotation.AutoExchange;
+import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
 import tech.baizi.autoexchange.core.dto.ExchangeInfoRateDto;
 import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 
@@ -18,7 +18,7 @@ public class TestDtos {
     public static class Product {
         public Long id = 1L;
         public String name = "Test Product";
-        @AutoExchange(name = "priceInCny")
+        @AutoExchangeField(name = "priceInCny")
         public BigDecimal priceUsd = new BigDecimal("100.00");
 
         public Long getId() {
@@ -104,7 +104,7 @@ public class TestDtos {
     public static class Node {
         public String name;
         public Node child;
-        @AutoExchange(name = "valueInCny")
+        @AutoExchangeField(name = "valueInCny")
         public BigDecimal value = new BigDecimal("50.00");
 
         public Node(String name) { this.name = name; }

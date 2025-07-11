@@ -1,8 +1,6 @@
 package tech.baizi.autoexchange.core.strategy;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import tech.baizi.autoexchange.core.annotation.AutoExchange;
+import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
 import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 import tech.baizi.autoexchange.core.strategy.meta.ClassMetadata;
 
@@ -33,10 +31,10 @@ public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy i
     }
 
     @Override
-    protected Object decidedNodeTransformation(Object originalObject, Map<String, Object> processedProperties, boolean hasChildrenChanged) {
+    protected Object decideNodeTransformation(Object originalObject, Map<String, Object> processedProperties, boolean hasChildrenChanged) {
         ClassMetadata classMetadata = getClassMetadata(originalObject.getClass());
 
-        if (!hasChildrenChanged && classMetadata.getExchangeableFields().isEmpty()) {
+        if (classMetadata == null || (!hasChildrenChanged && classMetadata.getExchangeableFields().isEmpty())) {
             return originalObject;
         }
         Map<String, Object> resultMap = createShallowMapFromObject(originalObject, classMetadata);
@@ -47,7 +45,7 @@ public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy i
                 if (originalValue == null) {
                     continue;
                 }
-                AutoExchange annotation = field.getAnnotation(AutoExchange.class);
+                AutoExchangeField annotation = field.getAnnotation(AutoExchangeField.class);
                 if (annotation == null) {
                     continue;
                 }
