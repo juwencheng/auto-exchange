@@ -22,8 +22,7 @@ import tech.baizi.autoexchange.core.strategy.InPlaceApplyExchangeStrategy;
 @Configuration
 // 只有在web程序中生效
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "auto.exchange", name = "enabled", havingValue = "true", matchIfMissing = false)
-@ConditionalOnClass({RestController.class, ObjectMapper.class})
+@ConditionalOnClass({RestController.class})
 @EnableConfigurationProperties({AutoExchangeProperties.class})
 public class AutoExchangeAutoConfiguration {
 
