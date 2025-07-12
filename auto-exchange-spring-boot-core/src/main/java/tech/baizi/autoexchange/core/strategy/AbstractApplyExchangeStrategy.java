@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
     private static final Logger log = LoggerFactory.getLogger(AppendApplyExchangeStrategy.class);
-    private final Map<Class<?>, ClassMetadata> classMetadataCache = new ConcurrentHashMap<>(100);
-    private final AutoExchangeProperties properties;
+    protected static final Map<Class<?>, ClassMetadata> CLASS_METADATA_CACHE = new ConcurrentHashMap<>(256);
+    protected final AutoExchangeProperties properties;
 
     protected AbstractApplyExchangeStrategy(AutoExchangeProperties properties) {
         this.properties = properties;
@@ -74,7 +74,7 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
 
         // --- 核心POJO处理逻辑 ---
         // 构建class的元信息，时刻提醒有两种场景
-        ClassMetadata classMetadata = classMetadataCache.computeIfAbsent(object.getClass(), this::buildClassMetadata);
+        ClassMetadata classMetadata = CLASS_METADATA_CACHE.computeIfAbsent(object.getClass(), this::buildClassMetadata);
         // 子节点（属性）是否修改了，修改了就会将对象转成Map
         boolean hasChildrenChanged = false;
         Map<String, Object> processedProperties = new HashMap<>(classMetadata.getPropertiesToInspect().size());
@@ -235,7 +235,7 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
      * @return 类元信息
      */
     final protected ClassMetadata getClassMetadata(Class<?> clazz) {
-        return classMetadataCache.get(clazz);
+        return CLASS_METADATA_CACHE.computeIfAbsent(clazz, this::buildClassMetadata);
     }
 
     /**
