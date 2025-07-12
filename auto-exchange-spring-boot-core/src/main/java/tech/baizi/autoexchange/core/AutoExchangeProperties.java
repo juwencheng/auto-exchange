@@ -9,8 +9,15 @@ import javax.validation.constraints.NotEmpty;
 @ConfigurationProperties(prefix = "auto.exchange")
 public class AutoExchangeProperties {
 
-    // 启动时刷新数据
+    /**
+     * 启动时，是否刷新汇率数据
+     */
     private boolean refreshOnLaunch = false;
+
+    /**
+     * 全局基准货币,默认人民币
+     */
+    private String globalBaseCurrency = "CNY";
 
     private RateRefresh rateRefresh = new RateRefresh();
 

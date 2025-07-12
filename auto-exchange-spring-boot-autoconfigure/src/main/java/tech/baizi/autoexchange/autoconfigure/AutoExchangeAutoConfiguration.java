@@ -23,7 +23,8 @@ import tech.baizi.autoexchange.core.strategy.AppendApplyExchangeStrategy;
 import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
 import tech.baizi.autoexchange.core.strategy.InPlaceApplyExchangeStrategy;
 import tech.baizi.autoexchange.scheduler.DynamicRateRefreshScheduler;
-import tech.baizi.autoexchange.service.CurrencyExchangeService;
+import tech.baizi.autoexchange.service.DefaultCurrencyExchangeService;
+import tech.baizi.autoexchange.service.ICurrencyExchangeService;
 
 @Configuration
 // 只有在web程序中生效
@@ -41,14 +42,27 @@ public class AutoExchangeAutoConfiguration {
 
     // ------------- 注册应用汇率的策略方法类 ------
     @Bean
-    @ConditionalOnMissingBean
-    public IApplyExchangeStrategy autoExchangeStrategy() {
-        return new AutoApplyExchangeStrategy(new InPlaceApplyExchangeStrategy(), new AppendApplyExchangeStrategy());
+    @ConditionalOnMissingBean // 允许用户覆盖
+    public AppendApplyExchangeStrategy appendApplyExchangeStrategy(/* ObjectMapper objectMapper */) {
+        return new AppendApplyExchangeStrategy(/* objectMapper */);
+    }
+
+    // 2. 将 In-place 策略也定义为Bean
+    @Bean
+    @ConditionalOnMissingBean // 允许用户覆盖
+    public InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy() {
+        return new InPlaceApplyExchangeStrategy();
     }
 
     @Bean
-    public AutoExchangeAspect autoExchangeAspect(IApplyExchangeStrategy applyExchangeStrategy) {
-        return new AutoExchangeAspect(applyExchangeStrategy);
+    @ConditionalOnMissingBean
+    public AutoApplyExchangeStrategy autoExchangeStrategy(InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy, AppendApplyExchangeStrategy applyExchangeStrategy) {
+        return new AutoApplyExchangeStrategy(inPlaceApplyExchangeStrategy, applyExchangeStrategy);
+    }
+
+    @Bean
+    public AutoExchangeAspect autoExchangeAspect(AutoApplyExchangeStrategy autoApplyExchangeStrategy) {
+        return new AutoExchangeAspect(autoApplyExchangeStrategy);
     }
 
     @Bean
@@ -63,8 +77,14 @@ public class AutoExchangeAutoConfiguration {
     }
 
     @Bean
-    public ExchangeManager exchangeManager(AutoExchangeProperties autoExchangeProperties, IExchangeDataProvider dataProvider) {
-        return new ExchangeManager(new CurrencyExchangeService(dataProvider), autoExchangeProperties);
+    @ConditionalOnMissingBean(ICurrencyExchangeService.class)
+    public ICurrencyExchangeService currencyExchangeService() {
+        return new DefaultCurrencyExchangeService();
+    }
+
+    @Bean
+    public ExchangeManager exchangeManager(AutoExchangeProperties autoExchangeProperties, IExchangeDataProvider dataProvider, ICurrencyExchangeService currencyExchangeService) {
+        return new ExchangeManager(currencyExchangeService, dataProvider, autoExchangeProperties);
     }
 
     @Configuration
