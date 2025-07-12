@@ -25,6 +25,7 @@
         <module>auto-exchange-spring-boot-starter</module>
         <module>auto-exchange-spring-boot-core</module>
         <module>auto-exchange-spring-boot-test-app</module>
+        <module>auto-exchange-spring-boot-processor</module>
     </modules>
 
     <properties>

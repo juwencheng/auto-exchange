@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>tech.baizi</groupId>
+        <artifactId>auto-exchange</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>auto-exchange-spring-boot-processor</artifactId>
+    <name>Auto Exchange Spring Boot Processor</name>
+    <description>在编译阶段校验注解是否合理的处理器。</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>tech.baizi</groupId>
+            <artifactId>auto-exchange-spring-boot-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 用于自动注册注解处理器 -->
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.1.1</version> <!-- 使用最新版本 -->
+            <optional>true</optional> <!-- 这是一个编译时工具，设为optional -->
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.auto.service</groupId>
+                            <artifactId>auto-service</artifactId>
+                            <version>1.1.1</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
