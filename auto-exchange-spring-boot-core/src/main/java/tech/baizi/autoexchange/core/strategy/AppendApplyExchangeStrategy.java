@@ -1,5 +1,8 @@
 package tech.baizi.autoexchange.core.strategy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
 import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 import tech.baizi.autoexchange.core.strategy.meta.ClassMetadata;
@@ -11,13 +14,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
-    private final Logger logger = Logger.getLogger(AppendApplyExchangeStrategy.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(AppendApplyExchangeStrategy.class);
 
-    public AppendApplyExchangeStrategy() {
+    public AppendApplyExchangeStrategy(AutoExchangeProperties properties) {
+        super(properties);
     }
 
     @Override
@@ -81,7 +83,7 @@ public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy i
                     try {
                         map.put(propertyDescriptor.getName(), readMethod.invoke(object));
                     } catch (Exception e) {
-                        logger.log(Level.WARNING, "无法读取属性: " + propertyDescriptor.getName(), e);
+                        log.warn("无法读取属性: " + propertyDescriptor.getName(), e);
                     }
                 }
             }

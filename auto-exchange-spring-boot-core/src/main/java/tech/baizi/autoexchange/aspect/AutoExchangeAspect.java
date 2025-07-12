@@ -6,8 +6,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 //import org.springframework.core.Ordered;
 //import org.springframework.core.annotation.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import tech.baizi.autoexchange.core.AutoExchangeProperties;
+import tech.baizi.autoexchange.core.context.AutoExchangeContext;
+import tech.baizi.autoexchange.core.context.AutoExchangeContextHolder;
 import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
 import tech.baizi.autoexchange.core.support.TypedResultWrapper;
+
+import javax.servlet.http.HttpServletRequest;
 
 // 关键：设置一个非常低的优先级（即一个非常大的数值）
 // 这能确保我们的切面在大多数其他切面（如@Transactional, @Cacheable）之后执行
@@ -16,10 +25,13 @@ import tech.baizi.autoexchange.core.support.TypedResultWrapper;
 //@Order(Ordered.LOWEST_PRECEDENCE)
 public class AutoExchangeAspect {
 
+    private static final Logger log = LoggerFactory.getLogger(AutoExchangeAspect.class);
     private final IApplyExchangeStrategy applyExchangeStrategy;
+    private final AutoExchangeProperties properties;
 
-    public AutoExchangeAspect(IApplyExchangeStrategy applyExchangeStrategy) {
+    public AutoExchangeAspect(IApplyExchangeStrategy applyExchangeStrategy, AutoExchangeProperties properties) {
         this.applyExchangeStrategy = applyExchangeStrategy;
+        this.properties = properties;
     }
 
 
@@ -30,15 +42,46 @@ public class AutoExchangeAspect {
 
     @Around("autoExchangeEnableMethods()")
     public Object handleExchange(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object originalResult = joinPoint.proceed();
-        if (originalResult == null) {
-            return null;
-        }
+        try {
+            String targetCurrency = resolveTargetCurrency();
+            AutoExchangeContextHolder.setContext(new AutoExchangeContext(targetCurrency));
+            Object originalResult = joinPoint.proceed();
+            if (originalResult == null) {
+                return null;
+            }
 
-        Object convertResult = applyExchangeStrategy.applyExchange(originalResult);
-        if (convertResult != originalResult && convertResult != null) {
-            return new TypedResultWrapper(originalResult, originalResult.getClass());
+            Object convertResult = applyExchangeStrategy.applyExchange(originalResult);
+            if (convertResult != originalResult && convertResult != null) {
+                return new TypedResultWrapper(originalResult, originalResult.getClass());
+            }
+            return originalResult;
+        } finally {
+            AutoExchangeContextHolder.clearContext();
         }
-        return originalResult;
+    }
+
+    private String resolveTargetCurrency() {
+        try {
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            HttpServletRequest request = requestAttributes.getRequest();
+            // 如果请求地址中包含参数，则优先从参数中获取
+            String currencyFromParam = request.getParameter(properties.getTargetCurrencyParamName());
+            if (currencyFromParam != null && !currencyFromParam.trim().isEmpty()) {
+                return currencyFromParam;
+            }
+            // --- 优先级查找逻辑保持不变 ---
+            String headerName = properties.getTargetCurrencyHeaderName();
+            if (headerName != null && !headerName.isBlank()) {
+                String currencyFromHeader = request.getHeader(headerName);
+                if (currencyFromHeader != null && !currencyFromHeader.isBlank()) {
+                    return currencyFromHeader;
+                }
+            }
+            return properties.getDefaultTargetCurrency();
+        } catch (IllegalStateException e) {
+            log.warn("当前线程没有绑定RequestAttribute，使用默认的目标货币", e);
+        }
+        return properties.getDefaultTargetCurrency();
+
     }
 }

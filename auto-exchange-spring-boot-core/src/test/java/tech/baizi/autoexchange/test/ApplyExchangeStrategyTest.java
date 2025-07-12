@@ -1,11 +1,11 @@
 package tech.baizi.autoexchange.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 import tech.baizi.autoexchange.core.strategy.AppendApplyExchangeStrategy;
 import tech.baizi.autoexchange.core.strategy.InPlaceApplyExchangeStrategy;
@@ -16,18 +16,21 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.baizi.autoexchange.test.dto.TestDtos.*;
+
 @DisplayName("汇率转换策略单元测试")
 public class ApplyExchangeStrategyTest {
     private AppendApplyExchangeStrategy appendStrategy;
     private InPlaceApplyExchangeStrategy inPlaceStrategy;
+    private AutoExchangeProperties properties;
 
     @BeforeEach
     void setUp() {
+        properties = new AutoExchangeProperties();
         // 对于Append策略，我们需要一个ObjectMapper
-        appendStrategy = new AppendApplyExchangeStrategy();
+        appendStrategy = new AppendApplyExchangeStrategy(properties);
 
         // In-place策略没有外部依赖
-        inPlaceStrategy = new InPlaceApplyExchangeStrategy();
+        inPlaceStrategy = new InPlaceApplyExchangeStrategy(properties);
     }
 
     // =========================================================================
@@ -61,7 +64,7 @@ public class ApplyExchangeStrategyTest {
 
             // 断言新的汇率字段被正确添加
             assertThat(resultMap).containsKey("priceInCny");
-            ExchangeResultDto exchangeResultDto = (ExchangeResultDto)resultMap.get("priceInCny");
+            ExchangeResultDto exchangeResultDto = (ExchangeResultDto) resultMap.get("priceInCny");
             assertThat(exchangeResultDto.getPrice()).isEqualByComparingTo("200.00"); // 模拟汇率是2
         }
 

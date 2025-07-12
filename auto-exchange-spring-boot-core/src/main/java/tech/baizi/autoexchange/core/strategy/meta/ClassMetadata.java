@@ -23,11 +23,17 @@ public class ClassMetadata {
      */
     private final List<Field> exchangeableFields;
 
+    /**
+     * 存储被{@link tech.baizi.autoexchange.core.annotation.AutoExchangeBaseCurrency}注解的字段
+     */
+    private final Field baseCurrencyField;
 
-    public ClassMetadata(boolean isApplyExchangeImplementor, List<PropertyDescriptor> propertiesToInspect, List<Field> exchangeableFields) {
+
+    public ClassMetadata(boolean isApplyExchangeImplementor, List<PropertyDescriptor> propertiesToInspect, List<Field> exchangeableFields, Field baseCurrencyField) {
         this.isApplyExchangeImplementor = isApplyExchangeImplementor;
         this.propertiesToInspect = propertiesToInspect;
         this.exchangeableFields = exchangeableFields;
+        this.baseCurrencyField = baseCurrencyField;
     }
 
     public boolean isApplyExchangeImplementor() {
@@ -41,5 +47,9 @@ public class ClassMetadata {
 
     public List<Field> getExchangeableFields() {
         return exchangeableFields;
+    }
+
+    public Field getBaseCurrencyField() {
+        return baseCurrencyField;
     }
 }

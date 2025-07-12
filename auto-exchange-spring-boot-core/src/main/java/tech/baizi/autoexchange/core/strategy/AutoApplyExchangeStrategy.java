@@ -1,6 +1,7 @@
 package tech.baizi.autoexchange.core.strategy;
 
 
+import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.strategy.meta.ClassMetadata;
 
 import java.util.*;
@@ -9,7 +10,8 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
     private final InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy;
     private final AppendApplyExchangeStrategy appendApplyExchangeStrategy;
 
-    public AutoApplyExchangeStrategy(InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy, AppendApplyExchangeStrategy appendApplyExchangeStrategy) {
+    public AutoApplyExchangeStrategy(InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy, AppendApplyExchangeStrategy appendApplyExchangeStrategy, AutoExchangeProperties properties) {
+        super(properties);
         this.inPlaceApplyExchangeStrategy = inPlaceApplyExchangeStrategy;
         this.appendApplyExchangeStrategy = appendApplyExchangeStrategy;
     }
