@@ -25,6 +25,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <!-- 核心 -->
         <dependency>
             <groupId>tech.baizi</groupId>
             <artifactId>auto-exchange-spring-boot-core</artifactId>
