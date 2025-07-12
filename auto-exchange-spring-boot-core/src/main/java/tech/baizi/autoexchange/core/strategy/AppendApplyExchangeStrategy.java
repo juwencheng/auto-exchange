@@ -15,6 +15,10 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.*;
 
+/**
+ * 弃用了，本来是用来做APPEND模式的实际处理类的，结果在做集成测试的时候发现类型转换错误，于是想了新的方法来解决。，见{@link tech.baizi.autoexchange.core.strategy.AutoApplyExchangeStrategy}
+ */
+@Deprecated
 public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
     private static final Logger log = LoggerFactory.getLogger(AppendApplyExchangeStrategy.class);
 
@@ -54,7 +58,7 @@ public class AppendApplyExchangeStrategy extends AbstractApplyExchangeStrategy i
                 BigDecimal val = new BigDecimal(originalValue.toString());
                 ExchangeResultDto exchangeResultDto = new ExchangeResultDto();
                 exchangeResultDto.setPrice(val.multiply(BigDecimal.valueOf(2)));
-                resultMap.put(annotation.name(), exchangeResultDto);
+                resultMap.put(annotation.value(), exchangeResultDto);
             } catch (Exception e) {
                 // 吃掉
 //                throw new RuntimeException(e);
