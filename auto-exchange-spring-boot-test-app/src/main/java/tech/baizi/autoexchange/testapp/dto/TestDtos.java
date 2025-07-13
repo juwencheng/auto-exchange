@@ -1,6 +1,7 @@
-package tech.baizi.autoexchange.test.dto;
+package tech.baizi.autoexchange.testapp.dto;
 
 import tech.baizi.autoexchange.core.IApplyExchange;
+import tech.baizi.autoexchange.core.annotation.AutoExchangeBaseCurrency;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
 import tech.baizi.autoexchange.core.dto.ExchangeInfoRateDto;
 import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
@@ -16,11 +17,13 @@ public class TestDtos {
     // ==== For Append Strategy ====
 
     // 基础产品，带有一个需要转换的字段
-    public static class Product {
+    public static class Product implements IApplyExchange {
         public Long id = 1L;
         public String name = "Test Product";
         @AutoExchangeField("priceInCny")
         public BigDecimal priceUsd = new BigDecimal("100.00");
+        @AutoExchangeField
+        public BigDecimal anotherPriceUsd = new BigDecimal("200.00");
 
         public Long getId() {
             return id;
@@ -32,6 +35,15 @@ public class TestDtos {
 
         public BigDecimal getPriceUsd() {
             return priceUsd;
+        }
+
+        public BigDecimal getAnotherPriceUsd() {
+            return anotherPriceUsd;
+        }
+
+        @Override
+        public void applyExchange(String targetCurrency, Optional<BigDecimal> rate) {
+            this.anotherPriceUsd = anotherPriceUsd.multiply(rate.orElse(BigDecimal.ZERO));
         }
     }
 
@@ -108,7 +120,9 @@ public class TestDtos {
         @AutoExchangeField("valueInCny")
         public BigDecimal value = new BigDecimal("50.00");
 
-        public Node(String name) { this.name = name; }
+        public Node(String name) {
+            this.name = name;
+        }
 
         public String getName() {
             return name;
@@ -152,7 +166,9 @@ public class TestDtos {
         }
 
         // Getter for testing
-        public ExchangeResultDto getExchangeInfo() { return exchangeInfo; }
+        public ExchangeResultDto getExchangeInfo() {
+            return exchangeInfo;
+        }
     }
 
     public static class CustomerAccount {

@@ -1,0 +1,4 @@
+auto:
+  exchange:
+    missing-rate:
+      missing-rate-strategy: return_null
