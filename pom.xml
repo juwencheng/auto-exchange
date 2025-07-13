@@ -14,14 +14,6 @@
     <description>自动汇率转换框架</description>
     <url>https://github.com/juwencheng/auto-exchange</url>
 
-    <modules>
-        <module>auto-exchange-spring-boot-autoconfigure</module>
-        <module>auto-exchange-spring-boot-starter</module>
-        <module>auto-exchange-spring-boot-core</module>
-        <module>auto-exchange-spring-boot-test-app</module>
-        <module>auto-exchange-spring-boot-processor</module>
-    </modules>
-
     <properties>
         <!-- Java版本 -->
         <maven.compiler.source>11</maven.compiler.source>
@@ -29,7 +21,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.deploy.skip>false</maven.deploy.skip>
         <!-- 依赖版本管理 -->
         <springboot.version>2.7.18</springboot.version>
         <jackson.version>2.18.3</jackson.version>
@@ -138,7 +129,6 @@
                     <artifactId>maven-source-plugin</artifactId>
                     <version>3.3.0</version>
                     <configuration>
-                        <skipSource>${maven.deploy.skip}</skipSource>
                     </configuration>
                     <executions>
                         <execution>
@@ -177,7 +167,6 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.14.0</version>
                     <configuration>
-                        <skip>${maven.deploy.skip}</skip>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
@@ -190,17 +179,31 @@
     </build>
 
     <profiles>
+        <!-- 1. 默认Profile，用于日常开发和构建 -->
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <!-- 包含所有模块 -->
+                <module>auto-exchange-spring-boot-core</module>
+                <module>auto-exchange-spring-boot-processor</module>
+                <module>auto-exchange-spring-boot-autoconfigure</module>
+                <module>auto-exchange-spring-boot-starter</module>
+                <module>auto-exchange-spring-boot-test-app</module>
+            </modules>
+        </profile>
         <profile>
             <id>release</id>
-            <!-- 【新添加】在这里覆盖默认的模块列表 -->
             <modules>
+                <!-- 包含所有模块 -->
                 <module>auto-exchange-spring-boot-core</module>
                 <module>auto-exchange-spring-boot-processor</module>
                 <module>auto-exchange-spring-boot-autoconfigure</module>
                 <module>auto-exchange-spring-boot-starter</module>
             </modules>
             <build>
-
                 <plugins>
                     <!-- 6. GPG 签名插件 (必需) -->
                     <plugin>
@@ -232,7 +235,9 @@
                         <version>0.8.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <skipPublishing>${maven.deploy.skip}</skipPublishing>
+                            <excludeArtifacts>
+                                <excludeArtifact>o.github.juwencheng:auto-exchange-spring-boot-test-app</excludeArtifact>
+                            </excludeArtifacts>
                             <publishingServerId>ossrh</publishingServerId>
                         </configuration>
                     </plugin>
