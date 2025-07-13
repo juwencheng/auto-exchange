@@ -12,7 +12,7 @@ import java.util.List;
 public class DefaultExchangeDataProvider implements IExchangeDataProvider {
     @Override
     public List<ExchangeInfoRateDto> fetchData() {
-        return List.of(new ExchangeInfoRateDto("CNY", "USD", BigDecimal.valueOf(0.1404494382022472)));
+        return List.of();
     }
 
     @Override

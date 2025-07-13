@@ -15,7 +15,7 @@ public class AutoExchangeProperties {
     /**
      * 启动程序后，是否立即刷新汇率数据
      */
-    private boolean refreshOnLaunch = false;
+    private boolean refreshOnLaunch = true;
 
     /**
      * 默认全局基准货币，不指定，默认为人民币
@@ -109,7 +109,7 @@ public class AutoExchangeProperties {
      */
     public static class MissingRate {
         private MissingRateStrategy missingRateStrategy = MissingRateStrategy.THROW_EXCEPTION;
-        private BigDecimal protectiveRateValue = new BigDecimal("99999.99");
+        private BigDecimal protectiveRateValue = new BigDecimal("9999999.99");
 
         public MissingRateStrategy getMissingRateStrategy() {
             return missingRateStrategy;
