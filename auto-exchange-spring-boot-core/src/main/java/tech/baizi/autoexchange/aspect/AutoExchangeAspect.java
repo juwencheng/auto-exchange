@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 // 设置一个非常低的优先级（即一个非常大的数值）
 // 这能确保我们的切面在大多数其他切面（如@Transactional, @Cacheable）之后执行
 @Aspect
-@Order(Ordered.LOWEST_PRECEDENCE)
 public class AutoExchangeAspect implements Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(AutoExchangeAspect.class);
