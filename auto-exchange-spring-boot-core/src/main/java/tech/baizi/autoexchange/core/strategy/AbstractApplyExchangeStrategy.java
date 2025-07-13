@@ -7,6 +7,8 @@ import tech.baizi.autoexchange.core.IApplyExchange;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeBaseCurrency;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
 import tech.baizi.autoexchange.core.strategy.meta.ClassMetadata;
+import tech.baizi.autoexchange.exception.AutoExchangeException;
+import tech.baizi.autoexchange.exception.ExchangeProcessingException;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -19,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 抽象的应用汇率策略，提供一些模版方法
  */
 public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
-    private static final Logger log = LoggerFactory.getLogger(AppendApplyExchangeStrategy.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractApplyExchangeStrategy.class);
     protected static final Map<Class<?>, ClassMetadata> CLASS_METADATA_CACHE = new ConcurrentHashMap<>(256);
     protected final AutoExchangeProperties properties;
 
@@ -32,7 +34,10 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
         if (rootObject == null) {
             return rootObject;
         }
-        return processRecursively(rootObject, new IdentityHashMap<>());
+        beforeApplyExchange();
+        Object o = processRecursively(rootObject, new IdentityHashMap<>());
+        afterApplyExchange();
+        return o;
     }
 
     /**
@@ -89,6 +94,7 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
             } catch (Exception e) {
                 // ignore
                 log.warn("Failed to introspect property " + pd.getReadMethod().getName() + " of class " + object.getClass().getName());
+                throw new ExchangeProcessingException("处理对象属性失败 " + pd.getReadMethod().getName(), e);
             }
         }
 
@@ -190,22 +196,13 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
                     if (field.isAnnotationPresent(AutoExchangeField.class)) {
                         exchangeFields.add(field);
                     } else if (field.isAnnotationPresent(AutoExchangeBaseCurrency.class)) {
-                        if (baseCurrencyField != null) {
-                            // 设计决策：一个类中只允许一个基础货币注解，避免混淆
-                            throw new IllegalStateException("在类 " + clazz.getName() +
-                                    " 中发现多个@AutoExchangeBaseCurrency注解，这是不被允许的。");
-                        }
-                        if (!String.class.isAssignableFrom(field.getType())) {
-                            throw new IllegalStateException("在类 " + clazz.getName() +
-                                    " 中，@AutoExchangeBaseCurrency注解的字段 " + field.getName() +
-                                    " 的类型必须是String。");
-                        }
                         baseCurrencyField = field;
                     }
                 }
             }
         } catch (Exception e) {
-//            logger.log(System.Logger.Level.ERROR, "Failed to introspect class {}", clazz.getName(), e);
+            log.error("buildClassMetadata error", e);
+            throw new ExchangeProcessingException("构建类 " + clazz.getName() + " 的元信息失败");
         }
         return new ClassMetadata(isApplyExchangeImplementor, propertiesToInspect, exchangeFields, baseCurrencyField);
     }
@@ -257,6 +254,7 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
                 }
             } catch (IllegalAccessException e) {
                 log.error("解析@AutoExchangeBaseCurrency标注的属性值作为基础货币出错，", e);
+                throw new AutoExchangeException("解析@AutoExchangeBaseCurrency标注的属性值作为基础货币出错，", e);
             }
         }
         return properties.getDefaultBaseCurrency();
