@@ -1,4 +1,4 @@
-package tech.baiziio.autoexchange.processor;
+package tech.baizi.autoexchange.processor;
 
 import com.google.auto.service.AutoService;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeBaseCurrency;
@@ -48,8 +48,26 @@ public class BaseCurrencyAnnotationProcessor extends AbstractProcessor {
                                 classElement.getSimpleName() + " 中发现了 " + fields.size() + " 个: [" + fieldNames + "]",
                         classElement // 将错误信息关联到类元素上
                 );
+            } else {
+                Element element = fields.get(0);
+                // 判断element是字符串类型
+                if (!isStringType(element)) {
+                    messager.printMessage(
+                            Diagnostic.Kind.ERROR,
+                            "@AutoExchangeBaseCurrency 注解只能用于String类型字段，但字段 " +
+                                    element.getSimpleName() + " 的类型是 " + element.asType(),
+                            element
+                    );
+                }
             }
         });
         return false;
+    }
+
+    /**
+     * 简单高效的String类型检查
+     */
+    private boolean isStringType(Element element) {
+        return "java.lang.String".equals(element.asType().toString());
     }
 }
