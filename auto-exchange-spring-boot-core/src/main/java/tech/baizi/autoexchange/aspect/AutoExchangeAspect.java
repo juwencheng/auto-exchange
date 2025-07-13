@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 // 这能确保我们的切面在大多数其他切面（如@Transactional, @Cacheable）之后执行
 @Aspect
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class AutoExchangeAspect {
+public class AutoExchangeAspect implements Ordered {
 
     private static final Logger log = LoggerFactory.getLogger(AutoExchangeAspect.class);
     private final IApplyExchangeStrategy applyExchangeStrategy;
@@ -86,5 +86,10 @@ public class AutoExchangeAspect {
         }
         return properties.getDefaultTargetCurrency();
 
+    }
+
+    @Override
+    public int getOrder() {
+        return this.properties.getAspectOrder();
     }
 }

@@ -1,6 +1,7 @@
 package tech.baizi.autoexchange.core;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.Ordered;
 import org.springframework.validation.annotation.Validated;
 import tech.baizi.autoexchange.core.enums.MissingRateStrategy;
 
@@ -36,6 +37,10 @@ public class AutoExchangeProperties {
     private String targetCurrencyParamName = "currency";
 
 
+    /**
+     * 切面的排序值（越大优先级越小），默认是LOWEST_PRECEDENCE(Integer.MAX_VALUE)
+     */
+    private Integer aspectOrder = Ordered.LOWEST_PRECEDENCE;
     /**
      * 刷新频率配置
      */
@@ -89,6 +94,14 @@ public class AutoExchangeProperties {
 
     public void setTargetCurrencyParamName(String targetCurrencyParamName) {
         this.targetCurrencyParamName = targetCurrencyParamName;
+    }
+
+    public Integer getAspectOrder() {
+        return aspectOrder;
+    }
+
+    public void setAspectOrder(Integer aspectOrder) {
+        this.aspectOrder = aspectOrder;
     }
 
     /**
@@ -147,6 +160,7 @@ public class AutoExchangeProperties {
             this.cron = cron;
         }
     }
+
     public MissingRate getMissingRate() {
         return missingRate;
     }
