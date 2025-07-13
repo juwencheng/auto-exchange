@@ -68,30 +68,14 @@ public class AppendingBeanSerializer extends BeanSerializer {
         return this;
     }
 
-    /**
-     * 【核心的序列化方法】
-     * 这是最重要的方法。它会被Jackson在序列化对象时调用。
-     */
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        // 如果有对象ID（@JsonIdentityInfo），先处理ID
-        if (_objectIdWriter != null) {
-            gen.setCurrentValue(bean);
-            _serializeWithObjectId(bean, gen, provider, true);
-            return;
-        }
+    protected void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        // 1. 【首先】调用父类的原始方法，让它正常地序列化所有静态字段。
+        //    这会正确地处理所有嵌套对象的递归序列化。
+        super.serializeFields(bean, gen, provider);
 
-        // 开始写入JSON对象
-        gen.writeStartObject(bean);
-
-        // 调用父类的方法来序列化所有已知的、静态的字段
-        // 这是递归能够传递下去的关键，因为serializeFields会为嵌套对象调用正确的（已被包装的）序列化器
-        serializeFields(bean, gen, provider);
-
-        // 【在这里追加我们的动态字段】
+        // 2. 【然后】在所有常规字段都已写入后，追加我们的动态字段。
         appendDynamicFields(bean, gen, provider);
-
-        gen.writeEndObject();
     }
 
     /**
