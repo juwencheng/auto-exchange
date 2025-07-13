@@ -4,6 +4,7 @@ import tech.baizi.autoexchange.core.dto.ExchangeInfoRateDto;
 
 import java.util.List;
 
+@Deprecated
 public class DefaultCurrencyExchangeService implements ICurrencyExchangeService {
 
     /**

@@ -16,13 +16,11 @@ import java.util.stream.Collectors;
 
 public class ExchangeManager implements ApplicationListener<ApplicationReadyEvent> {
     Logger log = LoggerFactory.getLogger(ExchangeManager.class);
-    private final ICurrencyExchangeService currencyExchangeService;
     private final IExchangeDataProvider dataProvider;
     private final AtomicReference<Map<String, ExchangeInfoRateDto>> cache = new AtomicReference<>();
     private final boolean refreshOnLaunch;
 
-    public ExchangeManager(ICurrencyExchangeService currencyExchangeService, IExchangeDataProvider dataProvider, AutoExchangeProperties properties) {
-        this.currencyExchangeService = currencyExchangeService;
+    public ExchangeManager(IExchangeDataProvider dataProvider, AutoExchangeProperties properties) {
         this.dataProvider = dataProvider;
         this.refreshOnLaunch = properties.isRefreshOnLaunch();
         // 确保不为空
@@ -31,22 +29,21 @@ public class ExchangeManager implements ApplicationListener<ApplicationReadyEven
 
     public void init() {
         // 从数据库中读取数据
-        List<ExchangeInfoRateDto> rateDtos = currencyExchangeService.loadPersistedRates();
-//        // 保存到数据库
-        Map<String, ExchangeInfoRateDto> newMap = rateDtos.stream().collect(Collectors.toMap((e) -> String.format("%s-%s", e.getBaseCurrency(), e.getTransCurrency()), Function.identity()));
+        List<ExchangeInfoRateDto> rateDtos = dataProvider.fetchData();
+        // 保存到数据库
+        Map<String, ExchangeInfoRateDto> newMap = rateDtos.stream().collect(Collectors.toMap((e) -> (e.getBaseCurrency() + "-" + e.getTransCurrency()), Function.identity()));
         cache.set(newMap);
     }
 
     public void refreshRates() {
         List<ExchangeInfoRateDto> rateDtos = dataProvider.fetchData();
-        if (rateDtos == null || rateDtos.isEmpty()) {
-            log.error("refreshRates 失败，返回结果为空");
+        if (rateDtos == null) {
+            log.warn("refreshRates 失败，返回结果为空");
+            // DISCUSSION: 如果为null，推测汇率更新程序出错了，保留上一次数据，但也可以清空cache，这里选择保留方案。
             return;
         }
         Map<String, ExchangeInfoRateDto> newMap = rateDtos.stream().collect(Collectors.toMap((e) -> e.getBaseCurrency() + "-" + e.getTransCurrency(), Function.identity()));
         cache.set(newMap);
-        // 保存数据到数据库
-        currencyExchangeService.saveNewRates(rateDtos);
     }
 
     public Optional<ExchangeInfoRateDto> getRate(String baseCurrency, String transCurrency) {
@@ -57,7 +54,7 @@ public class ExchangeManager implements ApplicationListener<ApplicationReadyEven
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         if (this.refreshOnLaunch) {
-            log.info("启动时从本地数据库加载汇率数据...");
+            log.info("启动时从刷新汇率数据...");
             init();
         }
     }

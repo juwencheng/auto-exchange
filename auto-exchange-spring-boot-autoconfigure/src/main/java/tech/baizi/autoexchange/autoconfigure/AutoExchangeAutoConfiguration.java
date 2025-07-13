@@ -70,14 +70,8 @@ public class AutoExchangeAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(ICurrencyExchangeService.class)
-    public ICurrencyExchangeService currencyExchangeService() {
-        return new DefaultCurrencyExchangeService();
-    }
-
-    @Bean
-    public ExchangeManager exchangeManager(AutoExchangeProperties autoExchangeProperties, IExchangeDataProvider dataProvider, ICurrencyExchangeService currencyExchangeService) {
-        return new ExchangeManager(currencyExchangeService, dataProvider, autoExchangeProperties);
+    public ExchangeManager exchangeManager(AutoExchangeProperties autoExchangeProperties, IExchangeDataProvider dataProvider) {
+        return new ExchangeManager(dataProvider, autoExchangeProperties);
     }
 
     @Bean
