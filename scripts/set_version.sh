@@ -154,6 +154,7 @@ main() {
         "$PROJECT_ROOT/auto-exchange-spring-boot-core/pom.xml"
         "$PROJECT_ROOT/auto-exchange-spring-boot-starter/pom.xml"
         "$PROJECT_ROOT/auto-exchange-spring-boot-test-app/pom.xml"
+        "$PROJECT_ROOT/auto-exchange-spring-boot-processor/pom.xml"
     )
     
     # 更新子模块pom文件

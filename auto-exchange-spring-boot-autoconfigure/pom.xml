@@ -6,13 +6,13 @@
     <parent>
         <groupId>tech.baizi</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>1.0.0</version>
+        <version>0.2.0</version>
     </parent>
     <name>Auto Exchange Spring Boot AutoConfigure</name>
     <description>自动汇率转换自动配置</description>
 
     <artifactId>auto-exchange-spring-boot-autoconfigure</artifactId>
-    <version>1.0.0</version>
+    <version>0.2.0</version>
 
     <dependencies>
         <!-- 核心自动配置依赖 -->

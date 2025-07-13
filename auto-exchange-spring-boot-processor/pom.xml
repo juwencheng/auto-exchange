@@ -6,7 +6,7 @@
     <parent>
         <groupId>tech.baizi</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>1.0.0</version>
+        <version>0.2.0</version>
     </parent>
 
     <artifactId>auto-exchange-spring-boot-processor</artifactId>
