@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * 规则：一个类中最多只能有一个字段被此注解标记。
  */
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("tech.baizi.autoexchange.core.annotation.AutoExchangeBaseCurrency")
+@SupportedAnnotationTypes("io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 public class BaseCurrencyAnnotationProcessor extends AbstractProcessor {
     private Messager messager;

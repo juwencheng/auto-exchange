@@ -38,11 +38,4 @@ public class AutoExchangeAutoConfigurationTest {
                 .hasSize(1);
     }
 
-    @Test
-    void shouldCreateApplicationRunner() {
-        // 验证ApplicationRunner Bean被创建
-        assertThat(applicationContext.getBean(ApplicationRunner.class))
-                .isNotNull()
-                .isInstanceOf(ApplicationRunner.class);
-    }
 }

@@ -98,8 +98,8 @@ public abstract class AbstractApplyExchangeStrategyDeprecated implements IApplyE
 
     /**
      * 是否可以转换
-     *
-     * @return
+     * @param clazz 要检查的类
+     * @return 结果
      */
     protected abstract boolean isConvertible(Class<?> clazz);
 

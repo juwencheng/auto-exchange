@@ -44,7 +44,7 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
      * 循环处理对象，从底至上的方式处理每一个对象及其属性。
      *
      * @param object     要处理的对象
-     * @param visitedMap <b>已经访问过的对象MAP</b>。</br>
+     * @param visitedMap <b>已经访问过的对象MAP</b>。<br>
      *                   有两个作用，一是记录对象是否被访问过，避免循环引用；
      *                   二是记录原对象和处理后对象的关系。在In-place模式下，它主要用于防止循环引用，
      *                   在Append模式下，它同时还解决了循环引用导致的过期引用问题。
@@ -158,8 +158,8 @@ public abstract class AbstractApplyExchangeStrategy implements IApplyExchangeStr
     }
 
     /**
-     * 【决策核心】根据节点自身类型和其子节点的转换状态，决定此节点的最终形态。</br>
-     * <b>INPLACE</b>: 原地修改模式中下，会直接返回原始对象</br>
+     * 【决策核心】根据节点自身类型和其子节点的转换状态，决定此节点的最终形态。<br>
+     * <b>INPLACE</b>: 原地修改模式中下，会直接返回原始对象<br>
      * <b>APPEND</b>: 追加模式下，要根据非叶子属性是否被处理过，和exchangeableFields是否为空来判断
      *
      * @param originalObject      原对象

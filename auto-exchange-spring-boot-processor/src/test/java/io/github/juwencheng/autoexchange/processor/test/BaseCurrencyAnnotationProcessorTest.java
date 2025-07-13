@@ -18,11 +18,11 @@ import static com.google.testing.compile.CompilationSubject.assertThat;
 class BaseCurrencyAnnotationProcessorTest {
 
     private String readFileUnderDtoAsString(String fileName) throws IOException {
-        return Files.readString(Paths.get(String.format("src/test/java/tech/baizi/autoexchange/processor/test/dto/%s.java", fileName)));
+        return Files.readString(Paths.get(String.format("src/test/java/io/github/juwencheng/autoexchange/processor/test/dto/%s.java", fileName)));
     }
 
     private JavaFileObject buildJavaFileObject(String className) throws IOException {
-        return JavaFileObjects.forSourceString("tech.baizi.autoexchange.processor.test.dto." + className, readFileUnderDtoAsString(className));
+        return JavaFileObjects.forSourceString("io.github.juwencheng.autoexchange.processor.test.dto." + className, readFileUnderDtoAsString(className));
     }
 
     @Test
