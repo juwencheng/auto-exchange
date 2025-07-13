@@ -16,7 +16,7 @@ public class ExchangeDataProvider implements IExchangeDataProvider {
     @Override
     public List<ExchangeInfoRateDto> fetchData() {
         logger.info("开始刷新汇率数据");
-        return List.of(new ExchangeInfoRateDto("USD", "CNY", BigDecimal.valueOf(7.3)));
+        return List.of(new ExchangeInfoRateDto("USD", "CNY", BigDecimal.valueOf(7.3)), new ExchangeInfoRateDto("CNY", "CNY", BigDecimal.ONE));
     }
 
     @Override

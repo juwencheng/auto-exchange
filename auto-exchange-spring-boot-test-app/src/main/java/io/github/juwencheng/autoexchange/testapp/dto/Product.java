@@ -1,6 +1,7 @@
 package io.github.juwencheng.autoexchange.testapp.dto;
 
 import io.github.juwencheng.autoexchange.core.IApplyExchange;
+import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency;
 import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
 
 import java.math.BigDecimal;
@@ -13,6 +14,8 @@ public class Product implements IApplyExchange {
     public BigDecimal priceUsd = new BigDecimal("100.00");
     @AutoExchangeField
     public BigDecimal anotherPriceUsd = new BigDecimal("200.00");
+    @AutoExchangeBaseCurrency
+    private String currency;
 
     public Long getId() {
         return id;
