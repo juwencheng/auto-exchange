@@ -28,12 +28,12 @@ import tech.baizi.autoexchange.service.ICurrencyExchangeService;
 @EnableConfigurationProperties({AutoExchangeProperties.class})
 public class AutoExchangeAutoConfiguration {
 
-    @Bean
-    public ApplicationRunner autoExchangeApplicationRunner() {
-        return args -> {
-            System.out.println("autoExchangeApplicationRunner");
-        };
-    }
+//    @Bean
+//    public ApplicationRunner autoExchangeApplicationRunner() {
+//        return args -> {
+//            System.out.println("autoExchangeApplicationRunner");
+//        };
+//    }
 
     // ------------- 注册应用汇率的策略方法类 ------
 
