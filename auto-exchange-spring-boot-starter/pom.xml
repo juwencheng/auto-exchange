@@ -16,12 +16,12 @@
         <dependency>
             <groupId>tech.baizi</groupId>
             <artifactId>auto-exchange-spring-boot-autoconfigure</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>tech.baizi</groupId>
             <artifactId>auto-exchange-spring-boot-processor</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
