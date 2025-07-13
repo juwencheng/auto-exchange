@@ -1,6 +1,8 @@
 package tech.baizi.autoexchange.core.strategy;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.IApplyExchange;
 import tech.baizi.autoexchange.core.annotation.AutoExchangeField;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
+    private static final Logger log = LoggerFactory.getLogger(AutoApplyExchangeStrategy.class);
     private final ExchangeManager exchangeManager;
 
     public AutoApplyExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
@@ -60,7 +63,11 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
 
         // 1. 先append
         for (Field exchangeableField : metadata.getExchangeableFields()) {
+            boolean canAccess = exchangeableField.canAccess(object);
             try {
+                if (!canAccess) {
+                    exchangeableField.setAccessible(true);
+                }
                 Object fieldValue = exchangeableField.get(object);
                 ExchangeResultDto exchangeResult = rate.map(exchangeInfoRateDto -> new ExchangeResultDto(exchangeInfoRateDto, BigDecimalTools.multiply(BigDecimalTools.convertOrDefault(fieldValue, BigDecimal.ZERO), exchangeInfoRateDto.getRate())))
                         .orElseGet(() -> resolveMissRate(fieldValue, baseCurrency, targetCurrency));
@@ -70,13 +77,19 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
                 }
                 context.addAppendedData(object, newFieldName, exchangeResult.toMap());
             } catch (IllegalAccessException e) {
+                log.error("对@AutoExchangeField注解标注的属性进行自动换汇失败：" + object.getClass() + "." + exchangeableField.getName(), e);
                 throw new ExchangeProcessingException("对@AutoExchangeField注解标注的属性进行自动换汇失败：" + object.getClass() + "." + exchangeableField.getName(), e);
+            } finally {
+                // 恢复原始状态
+                if (!canAccess) {
+                    exchangeableField.setAccessible(false);
+                }
             }
         }
         // 2. 再In-place ，避免重复计算
         if (metadata.isApplyExchangeImplementor()) {
-            ExchangeResultDto exchangeResult = resolveMissRate(object, baseCurrency, targetCurrency);
-            ((IApplyExchange) object).applyExchange(targetCurrency, Optional.ofNullable(exchangeResult.getRate()));
+            ExchangeInfoRateDto exchangeInfoRateDto = rate.orElseGet(() -> resolveMissRate(object, baseCurrency, targetCurrency));
+            ((IApplyExchange) object).applyExchange(targetCurrency, Optional.ofNullable(exchangeInfoRateDto.getRate()));
         }
 
         // --- 递归遍历子节点 ---
