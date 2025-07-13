@@ -58,7 +58,7 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
         ClassMetadata metadata = getClassMetadata(object.getClass());
         AutoExchangeContext context = AutoExchangeContextHolder.getContext();
         String targetCurrency = context.getTargetCurrency();
-        String baseCurrency = resolveBaseCurrency(targetCurrency, metadata);
+        String baseCurrency = resolveBaseCurrency(object, metadata);
         Optional<ExchangeInfoRateDto> rate = exchangeManager.getRate(baseCurrency, targetCurrency);
 
         // 1. 先append
