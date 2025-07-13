@@ -37,6 +37,14 @@ public class Product implements IApplyExchange {
     public void applyExchange(String targetCurrency, Optional<BigDecimal> rate) {
         this.anotherPriceUsd = anotherPriceUsd.multiply(rate.orElse(BigDecimal.ZERO));
     }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
 }
 
 
