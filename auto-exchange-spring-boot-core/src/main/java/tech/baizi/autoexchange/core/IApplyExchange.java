@@ -1,13 +1,14 @@
 package tech.baizi.autoexchange.core;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public interface IApplyExchange {
     /**
      * 应用汇率转换
      *
      * @param targetCurrency 目标币种
-     * @param rate           汇率
+     * @param rateOpt        汇率可能为空
      */
-    void applyExchange(String targetCurrency, BigDecimal rate);
+    void applyExchange(String targetCurrency, Optional<BigDecimal> rateOpt);
 }
