@@ -1,8 +1,8 @@
 # Auto Exchange Rate - Spring Boot Starter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/travis/com/juwencheng/auto-exchange-starter.svg?style=flat-square)](https://travis-ci.com/juwencheng/auto-exchange-starter)
-[![Maven Central](https://img.shields.io/maven-central/v/tech.baizi.auto-exchange/auto-exchange-spring-boot-starter.svg?style=flat-square)](https://search.maven.org/artifact/tech.baizi.auto-exchange/auto-exchange-spring-boot-starter)
+![CI](https://github.com/juwencheng/auto-exchange/workflows/maven-publish/badge.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.juwencheng/auto-exchange.svg?style=flat-square)](https://search.maven.org/artifact/io.github.juwencheng/auto-exchange)
 
 一个为Spring Boot应用设计的、功能强大且高度可扩展的自动汇率转换框架。
 
