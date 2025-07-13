@@ -2,3 +2,7 @@ auto:
   exchange:
     missing-rate:
       missing-rate-strategy: return_null
+    rate-refresh:
+      cron: 0 * * * * ?
+      enabled: true
+    refresh-on-launch: true
