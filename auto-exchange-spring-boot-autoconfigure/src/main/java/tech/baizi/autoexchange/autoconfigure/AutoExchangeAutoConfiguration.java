@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.bind.annotation.RestController;
 import tech.baizi.autoexchange.aspect.AutoExchangeAspect;
+import tech.baizi.autoexchange.autoconfigure.exception.AutoExchangeExceptionHandler;
 import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.manager.ExchangeManager;
 import tech.baizi.autoexchange.core.serialize.ExchangeBeanSerializerModifier;
@@ -79,6 +80,12 @@ public class AutoExchangeAutoConfiguration {
         return new ExchangeManager(currencyExchangeService, dataProvider, autoExchangeProperties);
     }
 
+    @Bean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    public AutoExchangeExceptionHandler exchangeExceptionHandler() {
+        return new AutoExchangeExceptionHandler();
+    }
+
     @Configuration
     @ConditionalOnProperty(prefix = "auto.exchange.rate-refresh", name = "enabled", havingValue = "true")
     public static class RateRefreshSchedulingConfiguration {
@@ -87,5 +94,4 @@ public class AutoExchangeAutoConfiguration {
             return new DynamicRateRefreshScheduler(taskScheduler, exchangeManager, properties);
         }
     }
-
 }
