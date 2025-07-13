@@ -11,7 +11,11 @@ import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 import tech.baizi.autoexchange.core.manager.ExchangeManager;
 import tech.baizi.autoexchange.core.strategy.meta.ClassMetadata;
 import tech.baizi.autoexchange.core.tools.BigDecimalTools;
+import tech.baizi.autoexchange.exception.ExchangeConfigurationException;
+import tech.baizi.autoexchange.exception.ExchangeProcessingException;
+import tech.baizi.autoexchange.exception.ExchangeRateNotFoundException;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
@@ -66,7 +70,7 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
                 }
                 context.addAppendedData(object, newFieldName, exchangeResult.toMap());
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new ExchangeProcessingException("对@AutoExchangeField注解标注的属性进行自动换汇失败：" + object.getClass() + "." + exchangeableField.getName(), e);
             }
         }
         // 2. 再In-place ，避免重复计算
@@ -81,12 +85,14 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
         } else if (object instanceof Map) {
             ((Map<?, ?>) object).values().forEach(item -> traverseObjectGraph(item, visitedMap));
         } else {
-//            for (PropertyDescriptor pd : metadata.getPropertiesToInspect()) {
-//                try {
-//                    Object propertyValue = pd.getReadMethod().invoke(object);
-//                    traverseAndApply(propertyValue, visited);
-//                } catch (Exception e) { /* log */ }
-//            }
+            for (PropertyDescriptor pd : metadata.getPropertiesToInspect()) {
+                try {
+                    Object propertyValue = pd.getReadMethod().invoke(object);
+                    traverseObjectGraph(propertyValue, visitedMap);
+                } catch (Exception e) {
+                    throw new ExchangeProcessingException("解析对象的属性对象图失败", e);
+                }
+            }
         }
     }
 
@@ -94,13 +100,13 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
         AutoExchangeProperties.MissingRate missingRate = this.properties.getMissingRate();
         switch (missingRate.getMissingRateStrategy()) {
             case THROW_EXCEPTION:
-                throw new IllegalStateException("没有找到汇率数据，[baseCurrency]: " + baseCurrency + ", [targetCurrency]: " + targetCurrency);
+                throw new ExchangeRateNotFoundException(baseCurrency, targetCurrency);
             case PROTECTIVE:
                 BigDecimal decimal = BigDecimalTools.multiply(BigDecimalTools.convertOrDefault(fieldValue, BigDecimal.ZERO), missingRate.getProtectiveRateValue());
                 return new ExchangeResultDto(new ExchangeInfoRateDto(baseCurrency, targetCurrency, missingRate.getProtectiveRateValue()), decimal);
             case RETURN_NULL:
                 return new ExchangeResultDto(new ExchangeInfoRateDto(baseCurrency, targetCurrency, null), null);
         }
-        throw new IllegalStateException("不支持的缺失汇率策略");
+        throw new ExchangeConfigurationException("不支持的缺失汇率策略");
     }
 }
