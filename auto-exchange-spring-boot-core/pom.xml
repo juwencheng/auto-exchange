@@ -6,11 +6,11 @@
     <parent>
         <groupId>io.github.juwencheng</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>0.3.0</version>
+        <version>0.3.1</version>
     </parent>
 
     <artifactId>auto-exchange-spring-boot-core</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <name>Auto Exchange Spring Boot Core</name>
     <description>自动汇率转换核心模块</description>
 
