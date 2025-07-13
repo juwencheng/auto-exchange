@@ -15,19 +15,29 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      # 步骤 2: 设置JDK环境，并同时配置Maven的settings.xml
+      - name: Set up JDK, GPG, and Maven settings
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          # 确保这里的Java版本与你pom.xml中定义的版本一致
+          java-version: '11'
           distribution: 'temurin'
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
+          # server-id 会被用作 <server><id>ossrh</id></server>
+          server-id: ossrh
+          # server-username 会读取 MAVEN_USERNAME 这个环境变量的值
+          server-username: MAVEN_USERNAME
+          # server-password 会读取 MAVEN_PASSWORD 这个环境变量的值
+          server-password: MAVEN_PASSWORD
+
+          # 同时，让这个Action也处理GPG密钥的导入，这比用另一个Action更集成
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Publish to Apache Maven Central
-        run: mvn -B deploy -P release --file pom.xml
+        # -P release 用来激活你在pom.xml中定义的release profile
+        # --no-transfer-progress 让日志更简洁
+        # -Dgpg.passphrase=... 将GPG密码安全地传递给gpg插件
+        run: mvn -B deploy -P release --no-transfer-progress -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
         env:
           # 将GitHub Secrets传递给Maven
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
