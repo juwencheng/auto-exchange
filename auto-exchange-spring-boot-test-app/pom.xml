@@ -12,6 +12,10 @@
     <artifactId>auto-exchange-spring-boot-test-app</artifactId>
     <version>0.3.0</version>
     <name>Auto Exchange Spring Boot Test App</name>
+    <properties>
+        <!-- 定义一个属性，用于控制所有发布相关的插件 -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
 
     <dependencies>
         <dependency>
