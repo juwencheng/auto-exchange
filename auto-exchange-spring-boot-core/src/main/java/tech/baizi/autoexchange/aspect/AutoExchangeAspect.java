@@ -4,17 +4,16 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-//import org.springframework.core.Ordered;
-//import org.springframework.core.annotation.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.context.AutoExchangeContext;
 import tech.baizi.autoexchange.core.context.AutoExchangeContextHolder;
 import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
-import tech.baizi.autoexchange.core.support.TypedResultWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 // 这能确保我们的切面在大多数其他切面（如@Transactional, @Cacheable）之后执行
 // 从而避免我们改变返回类型后，影响到期望接收原始DTO的其他切面。
 @Aspect
-//@Order(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class AutoExchangeAspect {
 
     private static final Logger log = LoggerFactory.getLogger(AutoExchangeAspect.class);
@@ -34,13 +33,22 @@ public class AutoExchangeAspect {
         this.properties = properties;
     }
 
+    @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
+    public void restController() {
 
-    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && @annotation(tech.baizi.autoexchange.core.annotation.AutoExchangeResponse)")
+    }
+
+    @Pointcut("@annotation(tech.baizi.autoexchange.core.annotation.AutoExchangeResponse)")
+    public void autoExchangeResponse() {
+
+    }
+
+    //    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && @annotation(tech.baizi.autoexchange.core.annotation.AutoExchangeResponse)")
     public void autoExchangeEnableMethods() {
 
     }
 
-    @Around("autoExchangeEnableMethods()")
+    @Around("autoExchangeResponse()")
     public Object handleExchange(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
             String targetCurrency = resolveTargetCurrency();
@@ -49,14 +57,10 @@ public class AutoExchangeAspect {
             if (originalResult == null) {
                 return null;
             }
-
-            Object convertResult = applyExchangeStrategy.applyExchange(originalResult);
-            if (convertResult != originalResult && convertResult != null) {
-                return new TypedResultWrapper(originalResult, originalResult.getClass());
-            }
+            applyExchangeStrategy.applyExchange(originalResult);
             return originalResult;
         } finally {
-            AutoExchangeContextHolder.clearContext();
+//            AutoExchangeContextHolder.clearContext();
         }
     }
 

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class AutoExchangeProperties {
 
     /**
-     * 启动时，是否刷新汇率数据
+     * 启动程序后，是否立即刷新汇率数据
      */
     private boolean refreshOnLaunch = false;
 
@@ -30,10 +30,18 @@ public class AutoExchangeProperties {
      */
     private String targetCurrencyHeaderName = "X-Target-Currency";
 
+    /**
+     * 目标币种参数名称
+     */
     private String targetCurrencyParamName = "currency";
 
 
+    /**
+     * 刷新频率配置
+     */
     private RateRefresh rateRefresh = new RateRefresh();
+
+    private MissingRate missingRate = new MissingRate();
 
     public RateRefresh getRateRefresh() {
         return rateRefresh;
@@ -111,12 +119,17 @@ public class AutoExchangeProperties {
      * 刷新汇率配置
      */
     public static class RateRefresh {
-        // 是否启动自动刷新
+        /**
+         * 是否启动自动刷新
+         */
         private boolean enabled = false;
 
 
+        /**
+         * 刷新频率的cron表达式，默认每天凌晨0:30分刷新
+         */
         @NotEmpty(message = "当启用汇率刷新时，CRON表达式不能为空")
-        private String cron;
+        private String cron = "0 30 0 * * ?";
 
         public boolean isEnabled() {
             return enabled;
@@ -133,7 +146,8 @@ public class AutoExchangeProperties {
         public void setCron(String cron) {
             this.cron = cron;
         }
-
-
+    }
+    public MissingRate getMissingRate() {
+        return missingRate;
     }
 }

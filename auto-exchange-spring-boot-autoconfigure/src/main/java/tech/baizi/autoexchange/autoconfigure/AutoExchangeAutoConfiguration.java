@@ -11,13 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import tech.baizi.autoexchange.aspect.AutoExchangeAspect;
 import tech.baizi.autoexchange.core.AutoExchangeProperties;
 import tech.baizi.autoexchange.core.manager.ExchangeManager;
+import tech.baizi.autoexchange.core.serialize.ExchangeBeanSerializerModifier;
 import tech.baizi.autoexchange.core.strategy.AutoApplyExchangeStrategy;
-import tech.baizi.autoexchange.core.support.TypedResultWrapper;
-import tech.baizi.autoexchange.core.support.TypedResultWrapperSerializer;
+import tech.baizi.autoexchange.core.strategy.IApplyExchangeStrategy;
 import tech.baizi.autoexchange.provider.DefaultExchangeDataProvider;
 import tech.baizi.autoexchange.provider.IExchangeDataProvider;
-import tech.baizi.autoexchange.core.strategy.AppendApplyExchangeStrategy;
-import tech.baizi.autoexchange.core.strategy.InPlaceApplyExchangeStrategy;
 import tech.baizi.autoexchange.scheduler.DynamicRateRefreshScheduler;
 import tech.baizi.autoexchange.service.DefaultCurrencyExchangeService;
 import tech.baizi.autoexchange.service.ICurrencyExchangeService;
@@ -37,33 +35,31 @@ public class AutoExchangeAutoConfiguration {
     }
 
     // ------------- 注册应用汇率的策略方法类 ------
-    @Bean
-    @ConditionalOnMissingBean // 允许用户覆盖
-    public AppendApplyExchangeStrategy appendApplyExchangeStrategy(AutoExchangeProperties properties) {
-        return new AppendApplyExchangeStrategy(properties);
-    }
-
-    // 2. 将 In-place 策略也定义为Bean
-    @Bean
-    @ConditionalOnMissingBean // 允许用户覆盖
-    public InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy(AutoExchangeProperties properties) {
-        return new InPlaceApplyExchangeStrategy(properties);
-    }
 
     @Bean
     @ConditionalOnMissingBean
-    public AutoApplyExchangeStrategy autoExchangeStrategy(InPlaceApplyExchangeStrategy inPlaceApplyExchangeStrategy, AppendApplyExchangeStrategy applyExchangeStrategy, AutoExchangeProperties properties) {
-        return new AutoApplyExchangeStrategy(inPlaceApplyExchangeStrategy, applyExchangeStrategy, properties);
+    public AutoApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
+        return new AutoApplyExchangeStrategy(properties, exchangeManager);
     }
 
     @Bean
-    public AutoExchangeAspect autoExchangeAspect(AutoApplyExchangeStrategy autoApplyExchangeStrategy, AutoExchangeProperties properties) {
+    public AutoExchangeAspect autoExchangeAspect(IApplyExchangeStrategy autoApplyExchangeStrategy, AutoExchangeProperties properties) {
         return new AutoExchangeAspect(autoApplyExchangeStrategy, properties);
     }
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer exchangeWrapperSerializerCustomizer() {
-        return builder -> builder.serializerByType(TypedResultWrapper.class, new TypedResultWrapperSerializer());
+        return builder -> {
+            builder.postConfigurer(objectMapper -> {
+                // ObjectMapper的SerializerFactory是负责创建和缓存序列化器的组件。
+                // 我们需要获取它，并给它加上我们的Modifier。
+                // withSerializerModifier()会返回一个新的Factory实例，所以我们需要set回去。
+                objectMapper.setSerializerFactory(
+                        objectMapper.getSerializerFactory()
+                                .withSerializerModifier(new ExchangeBeanSerializerModifier())
+                );
+            });
+        };
     }
 
     @Bean

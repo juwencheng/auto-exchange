@@ -8,6 +8,7 @@ import tech.baizi.autoexchange.core.dto.ExchangeResultDto;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 // 辅助类，方便测试
 public class TestDtos {
@@ -18,7 +19,7 @@ public class TestDtos {
     public static class Product {
         public Long id = 1L;
         public String name = "Test Product";
-        @AutoExchangeField(name = "priceInCny")
+        @AutoExchangeField("priceInCny")
         public BigDecimal priceUsd = new BigDecimal("100.00");
 
         public Long getId() {
@@ -104,7 +105,7 @@ public class TestDtos {
     public static class Node {
         public String name;
         public Node child;
-        @AutoExchangeField(name = "valueInCny")
+        @AutoExchangeField("valueInCny")
         public BigDecimal value = new BigDecimal("50.00");
 
         public Node(String name) { this.name = name; }
@@ -142,7 +143,8 @@ public class TestDtos {
         private ExchangeResultDto exchangeInfo;
 
         @Override
-        public void applyExchange(String currency, BigDecimal rate) {
+        public void applyExchange(String currency, Optional<BigDecimal> rateOpt) {
+            BigDecimal rate = rateOpt.orElse(BigDecimal.ZERO);
             BigDecimal convertedPrice = this.monthlyFee.multiply(rate);
             ExchangeInfoRateDto exchangeInfoRateDto = new ExchangeInfoRateDto();
             exchangeInfoRateDto.setRate(rate);

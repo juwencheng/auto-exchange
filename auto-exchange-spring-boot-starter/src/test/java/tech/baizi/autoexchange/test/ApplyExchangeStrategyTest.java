@@ -17,6 +17,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.baizi.autoexchange.test.dto.TestDtos.*;
 
+@Deprecated
 @DisplayName("汇率转换策略单元测试")
 public class ApplyExchangeStrategyTest {
     private AppendApplyExchangeStrategy appendStrategy;

@@ -16,6 +16,16 @@ public class ExchangeInfoRateDto {
      */
     protected BigDecimal rate;
 
+    public ExchangeInfoRateDto() {
+
+    }
+
+    public ExchangeInfoRateDto(String baseCurrency, String transCurrency, BigDecimal rate) {
+        this.baseCurrency = baseCurrency;
+        this.transCurrency = transCurrency;
+        this.rate = rate;
+    }
+
     public String getBaseCurrency() {
         return baseCurrency;
     }

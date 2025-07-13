@@ -2,6 +2,7 @@ package tech.baizi.autoexchange.provider;
 
 import tech.baizi.autoexchange.core.dto.ExchangeInfoRateDto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public class DefaultExchangeDataProvider implements IExchangeDataProvider {
     @Override
     public List<ExchangeInfoRateDto> fetchData() {
-        return List.of();
+        return List.of(new ExchangeInfoRateDto("CNY", "USD", BigDecimal.valueOf(0.1404494382022472)));
     }
 
     @Override
