@@ -6,11 +6,11 @@
     <parent>
         <groupId>io.github.juwencheng</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>0.3.1</version>
+        <version>0.3.2</version>
     </parent>
 
     <artifactId>auto-exchange-spring-boot-starter</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
     <name>Auto Exchange Spring Boot Starter</name>
     <dependencies>
         <dependency>

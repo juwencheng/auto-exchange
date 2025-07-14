@@ -7,7 +7,7 @@
 
     <groupId>io.github.juwencheng</groupId>
     <artifactId>auto-exchange</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.2</version>
     <packaging>pom</packaging>
 
     <name>Auto Exchange</name>
@@ -146,7 +146,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.5.0</version>
                     <configuration>
-                        <skip>${maven.deploy.skip}</skip>
                         <encoding>UTF-8</encoding>
                         <charset>UTF-8</charset>
                         <docencoding>UTF-8</docencoding>
@@ -218,7 +217,6 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <skip>${maven.deploy.skip}</skip>
                                     <!-- 在GitHub Actions中，我们会通过命令行参数传入密码 -->
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>

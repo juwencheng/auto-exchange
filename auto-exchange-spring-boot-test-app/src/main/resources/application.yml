@@ -2,7 +2,13 @@ auto:
   exchange:
     missing-rate:
       missing-rate-strategy: return_null
+      protective-rate-value: 999999.99
     rate-refresh:
       cron: 0 * * * * ?
       enabled: true
     refresh-on-launch: true
+    default-base-currency: CNY
+    default-target-currency: CNY
+    target-currency-param-name: currency
+    target-currency-header-name: X-Target-Currency
+    aspect-order: 2147483647

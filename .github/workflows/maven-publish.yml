@@ -25,6 +25,7 @@ jobs:
 
           # server-id 会被用作 <server><id>ossrh</id></server>
           server-id: ossrh
+          # 用户名和密码通过环境变量传递
           # server-username 会读取 MAVEN_USERNAME 这个环境变量的值
           server-username: MAVEN_USERNAME
           # server-password 会读取 MAVEN_PASSWORD 这个环境变量的值
@@ -35,6 +36,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Publish to Apache Maven Central
         # -P release 用来激活你在pom.xml中定义的release profile
+        # -B 批处理模式（非交互式）
         # --no-transfer-progress 让日志更简洁
         # -Dgpg.passphrase=... 将GPG密码安全地传递给gpg插件
         run: mvn -B deploy -P release --no-transfer-progress -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}

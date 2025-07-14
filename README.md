@@ -6,7 +6,8 @@
 
 一个为Spring Boot应用设计的、功能强大且高度可扩展的自动汇率转换框架。
 
-`auto-exchange-starter` 允许您以一种非侵入的、声明式的方式，为API接口返回的数据动态地附加或修改汇率转换信息。无论是为电商应用的价格添加多币种展示，还是为金融服务的报表提供汇率计算，本框架都能提供优雅、健壮且高性能的解决方案。
+`auto-exchange-starter`
+允许您以一种非侵入的、声明式的方式，为API接口返回的数据动态地附加或修改汇率转换信息。无论是为电商应用的价格添加多币种展示，还是为金融服务的报表提供汇率计算，本框架都能提供优雅、健壮且高性能的解决方案。
 
 ## ✨ 核心特性
 
@@ -20,15 +21,14 @@
     - **基础货币**: 支持通过动态字段（`@AutoExchangeBaseCurrency`）或全局配置来指定原始价格的货币单位。
 - **高度可扩展**:
     - **自定义数据源**: 可轻松替换默认的汇率数据提供者（`IExchangeDataProvider`）。
-    - **（TODO）自定义持久化**: 可实现`ICurrencyExchangeService`接口以对接您自己的数据库。
 - **健壮与安全**:
     - **编译时校验**: 通过注解处理器在编译阶段就发现不规范的用法，防止运行时错误。
-    *   **动态定时任务**: 支持通过CRON表达式配置汇率数据的定时刷新。
-    *   **风险控制**: 提供多种汇率缺失处理策略（抛异常、返回保护值），防止业务漏洞。
+    - **动态定时任务**: 支持通过CRON表达式配置汇率数据的定时刷新。
+    - **风险控制**: 提供多种汇率缺失处理策略（抛异常、返回保护值），防止业务漏洞。
 - **专业的API设计**:
-    *   **清晰的注解体系**: `@EnableAutoExchange`, `@AutoExchangeResponse`, `@AutoExchangeField`等职责分明。
-    *   **强大的异常处理**: 提供默认的`@ControllerAdvice`，将框架异常转换为结构化的HTTP错误响应。
-    *   **兼容性**: 允许通过配置文件动态调整AOP切面顺序，以更好地与其他框架集成。
+    - **清晰的注解体系**: `@EnableAutoExchange`, `@AutoExchangeResponse`, `@AutoExchangeField`等职责分明。
+    - **强大的异常处理**: 提供默认的`@ControllerAdvice`，将框架异常转换为结构化的HTTP错误响应。
+    - **兼容性**: 允许通过配置文件动态调整AOP切面顺序，以更好地与其他框架集成。
 
 ## 🚀 快速上手
 
@@ -37,8 +37,9 @@
 在您的`pom.xml`中，添加`auto-exchange-spring-boot-starter`依赖。
 
 ```xml
+
 <dependency>
-    <groupId>com.your-group</groupId>
+    <groupId>io.github.juwencheng</groupId>
     <artifactId>auto-exchange-spring-boot-starter</artifactId>
     <version>${version}</version>
 </dependency>
@@ -70,43 +71,44 @@ public class MyApplication {
 
 假设您有一个`Product` DTO，您希望为`price`字段动态添加一个名为`exchangePrice`的转换结果。
 
-1.  **修改您的DTO**:
-    ```java
-    import com.your.starter.annotation.AutoExchangeField;
-    import java.math.BigDecimal;
+1. **修改您的DTO**:
+   ```java
+   import com.your.starter.annotation.AutoExchangeField;
+   import java.math.BigDecimal;
 
-    public class Product {
-        private Long id;
-        private String name;
+   public class Product {
+       private Long id;
+       private String name;
 
-        // 标记这个字段需要转换，转换后的新字段名为"exchangePrice"
-        // 假设这个价格的基础货币是美元
-        @AutoExchangeField(value = "exchangePrice")
-        private BigDecimal price;
-        
-        // ... getters and setters
-    }
-    ```
+       // 标记这个字段需要转换，转换后的新字段名为"exchangePrice"
+       // 假设这个价格的基础货币是美元
+       @AutoExchangeField(value = "exchangePrice")
+       private BigDecimal price;
+       
+       // ... getters and setters
+   }
+   ```
 
-2.  **在Controller方法上标记**:
-    ```java
-    import com.your.starter.annotation.AutoExchangeResponse;
-    import org.springframework.web.bind.annotation.GetMapping;
-    import org.springframework.web.bind.annotation.RestController;
+2. **在Controller方法上标记**:
+   ```java
+   import com.your.starter.annotation.AutoExchangeResponse;
+   import org.springframework.web.bind.annotation.GetMapping;
+   import org.springframework.web.bind.annotation.RestController;
 
-    @RestController
-    public class ProductController {
+   @RestController
+   public class ProductController {
 
-        @GetMapping("/product/1")
-        @AutoExchangeResponse // 告诉框架需要处理这个方法的返回值
-        public Product getProduct() {
-            // ...返回一个Product实例
-        }
-    }
-    ```
+       @GetMapping("/product/1")
+       @AutoExchangeResponse // 告诉框架需要处理这个方法的返回值
+       public Product getProduct() {
+           // ...返回一个Product实例
+       }
+   }
+   ```
 
 **请求与响应**:
 当您请求 `/product/1` 时，如果原始`Product`对象是：
+
 ```json
 {
   "id": 1,
@@ -114,14 +116,16 @@ public class MyApplication {
   "price": 999.00
 }
 ```
+
 框架处理后的JSON响应将是（假设目标货币是CNY，汇率是7.0）：
+
 ```json
 {
   "id": 1,
   "name": "Laptop",
   "price": 999.00,
-  "exchangePrice": {  // <-- 动态添加的字段
-    "price": 6993.00,
+  "exchangePrice": {
+    "price": 6993.00, // <-- 动态添加的字段
     "rate": 7.0,
     "base": "USD",
     "trans": "CNY"
@@ -141,19 +145,19 @@ auto:
     # 全局默认的基础货币和目标货币
     default-base-currency: "USD"
     default-target-currency: "CNY"
-    
+
     # 目标货币的解析方式 (按优先级)
     target-currency-param-name: "currency"           # 1. 从URL参数获取
     target-currency-header-name: "X-Target-Currency" # 2. 从HTTP Header获取
-    
-    
-    # 汇率缺失时的处理策略 (THROW_EXCEPTION, PROTECTIVE, RETURN_NULL)
-    # THROW_EXCEPTION: 抛出异常
-    # PROTECTIVE: 使用保护性策略，乘一个很大的数(protective-rate-value)避免造成损失
-    # RETURN_NULL: 返回null，默认是抛出异常
-    on-missing-rate: THROW_EXCEPTION
-    # 当策略为PROTECTIVE时使用的保护性汇率值
-    protective-rate-value: 9999999.99
+
+    missing-rate:
+      # 汇率缺失时的处理策略 (THROW_EXCEPTION, PROTECTIVE, RETURN_NULL)
+      # THROW_EXCEPTION: 抛出异常
+      # PROTECTIVE: 使用保护性策略，乘一个很大的数(protective-rate-value)避免造成损失
+      # RETURN_NULL: 返回null，默认是抛出异常
+      missing-rate-strategy: return_null
+      # 当策略为PROTECTIVE时使用的保护性汇率值
+      protective-rate-value: 999999.99
 
     # AOP切面执行顺序，用于解决与其他AOP框架的冲突
     aspect-order: 2147483647 # (默认最后执行)
@@ -166,20 +170,20 @@ auto:
 
 ### 动态基础货币
 
-对于计价币种不固定的场景，您可以使用`@AutoExchangeBaseCurrency`。
+对于计价币种不固定的场景，例如不同商品采用不同的计价币种，您可以使用`@AutoExchangeBaseCurrency`。
 
 ```java
 import com.your.starter.annotation.AutoExchangeField;
 import com.your.starter.annotation.AutoExchangeBaseCurrency;
 
 public class DynamicProduct {
-    
+
     @AutoExchangeField("exchangePrice")
     private BigDecimal price;
-    
+
     @AutoExchangeBaseCurrency // 标记这个字段是上面价格的币种
     private String currency;
-    
+
     // ...
 }
 ```
@@ -189,25 +193,28 @@ public class DynamicProduct {
 要启用定时刷新，除了在配置文件中设置`enabled: true`，您还必须在主启动类上添加`@EnableScheduling`注解。
 
 ```java
+
 @SpringBootApplication
 @EnableAutoExchange
 @EnableScheduling // <-- 必须添加以启用Spring的调度功能
-public class MyApplication { ... }
+public class MyApplication { ...
+}
 ```
 
 ## 🧩 扩展与自定义
 
-本框架通过接口提供了极高的可扩展性。您只需在Spring容器中提供您自己的Bean，框架的`@ConditionalOnMissingBean`机制就会自动使用您的实现来替换默认实现。
+本框架通过接口提供了极高的可扩展性。您只需在Spring容器中提供您自己的Bean，框架的`@ConditionalOnMissingBean`
+机制就会自动使用您的实现来替换默认实现。
 
 - **`IExchangeDataProvider`**: 实现此接口以对接您自己的外部汇率API或数据源。
-- **`ICurrencyExchangeService`**: (TODO)实现此接口以自定义汇率数据的加载和持久化逻辑（例如，使用JPA与您自己的数据库交互）。
 
 ## 💡 设计哲学
 
-1.  **确定性优于强大**: 框架在遇到模棱两可的配置（例如，在父子链上混合使用In-place和Append模式）时，**优先使用Append模式，再使用In-place模式**，避免重复计算。
-2.  **无侵入性是最高优先级**: 核心目标是让用户以最小的代码改动来集成和使用本框架。
-3.  **约定优于配置**: 提供了一套合理的默认行为，但允许用户通过配置文件和自定义Bean来覆盖每一个细节。
-4.  **编译时防御**: 利用注解处理器在编译阶段发现潜在问题，将错误扼杀在摇篮里。
+1**无侵入性是最高优先级**: 核心目标是让用户以最小的代码改动来集成和使用本框架。
+2**确定性优于强大**: 框架在遇到模棱两可的配置（例如，在父子链上混合使用In-place和Append模式）时，
+   **优先使用Append模式，再使用In-place模式**，避免重复计算。
+3. **约定优于配置**: 提供了一套合理的默认行为，但允许用户通过配置文件和自定义Bean来覆盖每一个细节。
+4. **编译时防御**: 利用注解处理器在编译阶段发现潜在问题，将错误扼杀在摇篮里。
 
 ## 🤝 贡献
 
