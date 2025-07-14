@@ -41,9 +41,7 @@ public class DynamicRateRefreshScheduler implements ApplicationListener<Applicat
 
                 // 使用TaskScheduler来安排任务
                 taskScheduler.schedule(task, trigger);
-
                 log.info("成功安排汇率刷新任务。CRON表达式: [{}], 时区: {}", cron, TimeZone.getDefault().getID());
-
             } catch (IllegalArgumentException e) {
                 log.error("无效的CRON表达式 [{}]: {}. 汇率刷新任务无法启动。", cron, e.getMessage());
             }

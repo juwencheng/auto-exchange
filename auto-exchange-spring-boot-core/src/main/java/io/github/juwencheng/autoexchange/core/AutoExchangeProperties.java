@@ -44,16 +44,12 @@ public class AutoExchangeProperties {
     /**
      * 刷新频率配置
      */
-    private RateRefresh rateRefresh = new RateRefresh();
+    private final RateRefresh rateRefresh = new RateRefresh();
 
-    private MissingRate missingRate = new MissingRate();
+    private final MissingRate missingRate = new MissingRate();
 
     public RateRefresh getRateRefresh() {
         return rateRefresh;
-    }
-
-    public void setRateRefresh(RateRefresh rateRefresh) {
-        this.rateRefresh = rateRefresh;
     }
 
     public boolean isRefreshOnLaunch() {

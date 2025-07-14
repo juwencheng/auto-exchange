@@ -1,8 +1,10 @@
 package io.github.juwencheng.autoexchange.autoconfigure;
 
+import io.github.juwencheng.autoexchange.autoconfigure.validation.RateRefreshConfigurationValidator;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -80,7 +82,14 @@ public class AutoExchangeAutoConfiguration {
     @Configuration
     @ConditionalOnProperty(prefix = "auto.exchange.rate-refresh", name = "enabled", havingValue = "true")
     public static class RateRefreshSchedulingConfiguration {
+
         @Bean
+        public RateRefreshConfigurationValidator rateRefreshConfigurationValidator(ApplicationContext context, AutoExchangeProperties properties) {
+            return new RateRefreshConfigurationValidator(context, properties);
+        }
+
+        @Bean
+        @ConditionalOnBean(TaskScheduler.class)
         public DynamicRateRefreshScheduler dynamicRateRefreshScheduler(TaskScheduler taskScheduler, ExchangeManager exchangeManager, AutoExchangeProperties properties) {
             return new DynamicRateRefreshScheduler(taskScheduler, exchangeManager, properties);
         }
