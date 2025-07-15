@@ -140,6 +140,23 @@ public class MyApplication {
 1. **参数**，在接口后面增加参数`currency=CNY`指定。接收的key默认是`currency`可以通过`auto.exchange.target-currency-param-name`修改。
 2. **Header**，在HTTP请求的`header`中指定。接收的key默认是`X-Target-Currency`，可以通过`auto.exchange.target-currency-header-name`修改。
 
+### 5. 自定义汇率数据源
+实现接口`IExchangeDataProvider`，即可传入汇率数据，如
+```java
+@Component
+public class CustomerExchangeDataProvider implements IExchangeDataProvider {
+    @Override
+    public List<ExchangeInfoRateDto> fetchData() {
+        // 返回具体的汇率数据
+        return List.of();
+    }
+
+    @Override
+    public List<ExchangeInfoRateDto> fetchData(LocalDateTime time) {
+        return List.of();
+    }
+}
+```
 
 ## 🔧 高级配置
 
@@ -148,7 +165,7 @@ public class MyApplication {
 ```yaml
 auto:
   exchange:
-    # 启动项目后，立即刷新数据
+    # 启动项目后，立即刷新汇率数据，框架没有持久化数据，需要在启动的时候传入
     refresh-on-launch: true
     # 全局默认的基础货币和目标货币
     default-base-currency: "USD"
