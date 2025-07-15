@@ -33,7 +33,7 @@ public class AutoExchangeAutoConfiguration {
     // ------------- 注册应用汇率的策略方法类 ------
     @Bean
     @ConditionalOnMissingBean
-    public AutoApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
+    public IApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
         return new AutoApplyExchangeStrategy(properties, exchangeManager);
     }
 
@@ -69,6 +69,7 @@ public class AutoExchangeAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     public AutoExchangeExceptionHandler exchangeExceptionHandler() {
         return new AutoExchangeExceptionHandler();
