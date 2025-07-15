@@ -50,7 +50,7 @@
 在您的Spring Boot主启动类或任何一个`@Configuration`类上，添加`@EnableAutoExchange`注解。
 
 ```java
-import com.your.starter.annotation.EnableAutoExchange;
+import io.github.juwencheng.autoexchange.autoconfigure.annotation.EnableAutoExchange;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -73,7 +73,7 @@ public class MyApplication {
 
 1. **修改您的DTO**:
    ```java
-   import com.your.starter.annotation.AutoExchangeField;
+   import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
    import java.math.BigDecimal;
 
    public class Product {
@@ -91,7 +91,7 @@ public class MyApplication {
 
 2. **在Controller方法上标记**:
    ```java
-   import com.your.starter.annotation.AutoExchangeResponse;
+   import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeResponse;
    import org.springframework.web.bind.annotation.GetMapping;
    import org.springframework.web.bind.annotation.RestController;
 
@@ -125,13 +125,21 @@ public class MyApplication {
   "name": "Laptop",
   "price": 999.00,
   "exchangePrice": {
-    "price": 6993.00, // <-- 动态添加的字段
+    "price": 6993.00,
+    // <-- 动态添加的字段
     "rate": 7.0,
     "base": "USD",
     "trans": "CNY"
   }
 }
 ```
+
+### 4. 目标币种的设置
+目标币种和客户端的需求有关系，所以设计了两种设置目标币种的方式，**如果同时在参数和Header中设置，参数的优先级高于Header**。
+
+1. **参数**，在接口后面增加参数`currency=CNY`指定。接收的key默认是`currency`可以通过`auto.exchange.target-currency-param-name`修改。
+2. **Header**，在HTTP请求的`header`中指定。接收的key默认是`X-Target-Currency`，可以通过`auto.exchange.target-currency-header-name`修改。
+
 
 ## 🔧 高级配置
 
@@ -152,9 +160,9 @@ auto:
 
     missing-rate:
       # 汇率缺失时的处理策略 (THROW_EXCEPTION, PROTECTIVE, RETURN_NULL)
-      # THROW_EXCEPTION: 抛出异常
+      # THROW_EXCEPTION: 抛出异常（默认）
       # PROTECTIVE: 使用保护性策略，乘一个很大的数(protective-rate-value)避免造成损失
-      # RETURN_NULL: 返回null，默认是抛出异常
+      # RETURN_NULL: 返回null
       missing-rate-strategy: return_null
       # 当策略为PROTECTIVE时使用的保护性汇率值
       protective-rate-value: 999999.99
@@ -173,8 +181,8 @@ auto:
 对于计价币种不固定的场景，例如不同商品采用不同的计价币种，您可以使用`@AutoExchangeBaseCurrency`。
 
 ```java
-import com.your.starter.annotation.AutoExchangeField;
-import com.your.starter.annotation.AutoExchangeBaseCurrency;
+import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
+import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency;
 
 public class DynamicProduct {
 
@@ -197,7 +205,7 @@ public class DynamicProduct {
 @SpringBootApplication
 @EnableAutoExchange
 @EnableScheduling // <-- 必须添加以启用Spring的调度功能
-public class MyApplication { ...
+public class MyApplication {
 }
 ```
 
@@ -210,8 +218,8 @@ public class MyApplication { ...
 
 ## 💡 设计哲学
 
-1**无侵入性是最高优先级**: 核心目标是让用户以最小的代码改动来集成和使用本框架。
-2**确定性优于强大**: 框架在遇到模棱两可的配置（例如，在父子链上混合使用In-place和Append模式）时，
+1. **无侵入性是最高优先级**: 核心目标是让用户以最小的代码改动来集成和使用本框架。
+2. **确定性优于强大**: 框架在遇到模棱两可的配置（例如，在父子链上混合使用In-place和Append模式）时，
    **优先使用Append模式，再使用In-place模式**，避免重复计算。
 3. **约定优于配置**: 提供了一套合理的默认行为，但允许用户通过配置文件和自定义Bean来覆盖每一个细节。
 4. **编译时防御**: 利用注解处理器在编译阶段发现潜在问题，将错误扼杀在摇篮里。
