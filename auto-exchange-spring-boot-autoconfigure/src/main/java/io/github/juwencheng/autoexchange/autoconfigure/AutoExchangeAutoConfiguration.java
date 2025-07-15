@@ -1,6 +1,7 @@
 package io.github.juwencheng.autoexchange.autoconfigure;
 
 import io.github.juwencheng.autoexchange.autoconfigure.validation.RateRefreshConfigurationValidator;
+import io.github.juwencheng.autoexchange.core.interceptor.AutoExchangeInterceptor;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,6 +20,8 @@ import io.github.juwencheng.autoexchange.core.strategy.IApplyExchangeStrategy;
 import io.github.juwencheng.autoexchange.provider.DefaultExchangeDataProvider;
 import io.github.juwencheng.autoexchange.provider.IExchangeDataProvider;
 import io.github.juwencheng.autoexchange.scheduler.DynamicRateRefreshScheduler;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 // 只有在web程序中生效
@@ -27,15 +30,7 @@ import io.github.juwencheng.autoexchange.scheduler.DynamicRateRefreshScheduler;
 @EnableConfigurationProperties({AutoExchangeProperties.class})
 public class AutoExchangeAutoConfiguration {
 
-//    @Bean
-//    public ApplicationRunner autoExchangeApplicationRunner() {
-//        return args -> {
-//            System.out.println("autoExchangeApplicationRunner");
-//        };
-//    }
-
     // ------------- 注册应用汇率的策略方法类 ------
-
     @Bean
     @ConditionalOnMissingBean
     public AutoApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
@@ -63,7 +58,7 @@ public class AutoExchangeAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(IExchangeDataProvider.class)
+    @ConditionalOnMissingBean
     public IExchangeDataProvider exchangeDataProvider() {
         return new DefaultExchangeDataProvider();
     }
@@ -78,6 +73,24 @@ public class AutoExchangeAutoConfiguration {
     public AutoExchangeExceptionHandler exchangeExceptionHandler() {
         return new AutoExchangeExceptionHandler();
     }
+
+
+    @Bean
+    public AutoExchangeInterceptor exchangeContextInterceptor(AutoExchangeProperties properties) {
+        return new AutoExchangeInterceptor(properties);
+    }
+
+    @Bean
+    public WebMvcConfigurer exchangeInterceptorConfigurer(AutoExchangeInterceptor interceptor) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                // 它从Spring容器中获取已经创建好的Interceptor实例并注册
+                registry.addInterceptor(interceptor);
+            }
+        };
+    }
+
 
     @Configuration
     @ConditionalOnProperty(prefix = "auto.exchange.rate-refresh", name = "enabled", havingValue = "true")

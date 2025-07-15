@@ -1,4 +1,4 @@
-name: 发布包到Maven Central
+name: 发布包到Maven
 on:
   release:
     types:

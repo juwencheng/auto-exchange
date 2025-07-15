@@ -59,7 +59,7 @@ public class TestControllerTest {
             IExchangeDataProvider mock = Mockito.mock(IExchangeDataProvider.class);
             // 设置默认行为
             when(mock.fetchData())
-                    .thenReturn(List.of(new ExchangeInfoRateDto("USD", "CNY", BigDecimal.valueOf(8)), new ExchangeInfoRateDto("CNY", "CNY", BigDecimal.valueOf(1))));
+                    .thenReturn(List.of(new ExchangeInfoRateDto("USD", "CNY", BigDecimal.valueOf(8)),new ExchangeInfoRateDto("CNY", "USD", BigDecimal.valueOf(0.2)), new ExchangeInfoRateDto("CNY", "CNY", BigDecimal.valueOf(1))));
             return mock;
         }
     }
@@ -83,6 +83,22 @@ public class TestControllerTest {
                 .andExpect(jsonPath("$.anotherPriceUsd").value(200.00))
                 .andExpect(jsonPath("$.priceInCny.price").value(100.00))
                 .andExpect(jsonPath("$.anotherPriceUsdAutoExchange.price").value(200.00))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("测试简单产品对象的自动汇率转换")
+    void testGetSimpleProductWithCurrencyParam() throws Exception {
+        mockMvc.perform(get("/test/simple?currency=USD")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name").value("Test Product"))
+                .andExpect(jsonPath("$.priceUsd").value(100.00))
+                .andExpect(jsonPath("$.anotherPriceUsd").value(40.00))
+                .andExpect(jsonPath("$.priceInCny.price").value(20.00))
+                .andExpect(jsonPath("$.priceInCny.trans").value("USD"))
+                .andExpect(jsonPath("$.anotherPriceUsdAutoExchange.price").value(40.00))
                 .andDo(print());
     }
 
