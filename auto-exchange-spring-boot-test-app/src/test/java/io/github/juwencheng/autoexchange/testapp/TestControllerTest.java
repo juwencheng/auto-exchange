@@ -167,5 +167,42 @@ public class TestControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("测试通过HTTP请求头传递目标货币")
+    void testGetSimpleProductWithCurrencyHeader() throws Exception {
+        mockMvc.perform(get("/test/simple")
+                        .header("X-Target-Currency", "USD")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.priceInCny.price").value(20.00))
+                .andExpect(jsonPath("$.priceInCny.trans").value("USD"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("测试 @AutoExchangeField 字段为 null 时，转换结果应为 0")
+    void testGetNullPriceProduct() throws Exception {
+        mockMvc.perform(get("/test/null-price")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name").value("Null Price Product"))
+                .andExpect(jsonPath("$.priceInCny.price").value(0))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("测试 @AutoExchangeBaseCurrency 运行时字段解析：显式指定 USD 基础货币")
+    void testGetProductWithExplicitBaseCurrency() throws Exception {
+        mockMvc.perform(get("/test/explicit-base-currency")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.priceInCny.base").value("USD"))
+                .andExpect(jsonPath("$.priceInCny.trans").value("CNY"))
+                .andExpect(jsonPath("$.priceInCny.price").value(800.00))
+                .andDo(print());
+    }
 
 }

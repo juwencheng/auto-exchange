@@ -1,12 +1,13 @@
 package io.github.juwencheng.autoexchange.core.context;
 
+import java.util.IdentityHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AutoExchangeContext {
     private final String targetCurrency;
 
-    private final Map<Object, Map<String, Object>> appendedData = new HashMap<>();
+    private final Map<Object, Map<String, Object>> appendedData = new IdentityHashMap<>();
 
     public AutoExchangeContext(String targetCurrency) {
         this.targetCurrency = targetCurrency;
