@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency")
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class BaseCurrencyAnnotationProcessor extends AbstractProcessor {
     private Messager messager;
 

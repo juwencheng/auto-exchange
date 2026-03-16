@@ -40,4 +40,18 @@ public class TestController {
     public UserWishlist getUserWishlist() {
         return new UserWishlist();
     }
+
+    @GetMapping("/test/null-price")
+    @AutoExchangeResponse
+    public ProductWithNullPrice getNullPriceProduct() {
+        return new ProductWithNullPrice();
+    }
+
+    @GetMapping("/test/explicit-base-currency")
+    @AutoExchangeResponse
+    public Product getProductWithExplicitBaseCurrency() {
+        Product product = new Product();
+        product.setCurrency("USD");
+        return product;
+    }
 }

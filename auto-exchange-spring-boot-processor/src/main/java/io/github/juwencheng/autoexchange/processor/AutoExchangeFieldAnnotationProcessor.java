@@ -18,7 +18,7 @@ import java.util.Set;
  */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField")
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class AutoExchangeFieldAnnotationProcessor extends AbstractProcessor {
     private Messager messager;
 

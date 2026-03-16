@@ -27,9 +27,11 @@ public class ExchangeManager implements ApplicationListener<ApplicationReadyEven
     }
 
     public void init() {
-        // 从数据库中读取数据
         List<ExchangeInfoRateDto> rateDtos = dataProvider.fetchData();
-        // 保存到数据库
+        if (rateDtos == null) {
+            log.warn("init 失败，返回结果为空");
+            return;
+        }
         Map<String, ExchangeInfoRateDto> newMap = rateDtos.stream().collect(Collectors.toMap((e) -> (e.getBaseCurrency() + "-" + e.getTransCurrency()), Function.identity()));
         cache.set(newMap);
     }
