@@ -72,7 +72,7 @@ class MissingRateProtectiveTest {
     @Test
     @DisplayName("请求没有汇率的目标货币时，PROTECTIVE 策略应使用保护性汇率（10）计算价格")
     void testMissingRateUsesProtectiveRate() throws Exception {
-        // Product.priceUsd = 100.00，CNY->EUR 无汇率，保护汇率为 10，期望结果 = 100 * 10 = 1000
+        // Product.priceUsd 默认为 100.00，配置的保护汇率为 10，期望换算结果 price = 100 * 10 = 1000
         mockMvc.perform(get("/test/simple?currency=EUR")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
