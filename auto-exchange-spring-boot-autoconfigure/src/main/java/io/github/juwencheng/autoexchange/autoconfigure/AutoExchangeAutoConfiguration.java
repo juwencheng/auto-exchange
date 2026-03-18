@@ -1,6 +1,8 @@
 package io.github.juwencheng.autoexchange.autoconfigure;
 
 import io.github.juwencheng.autoexchange.autoconfigure.validation.RateRefreshConfigurationValidator;
+import io.github.juwencheng.autoexchange.core.convertor.DefaultExchangeResultDataConvertor;
+import io.github.juwencheng.autoexchange.core.convertor.IExchangeResultDataConvertor;
 import io.github.juwencheng.autoexchange.core.interceptor.AutoExchangeInterceptor;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -33,8 +35,14 @@ public class AutoExchangeAutoConfiguration {
     // ------------- 注册应用汇率的策略方法类 ------
     @Bean
     @ConditionalOnMissingBean
-    public IApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
-        return new AutoApplyExchangeStrategy(properties, exchangeManager);
+    public IExchangeResultDataConvertor exchangeResultDataConvertor() {
+        return new DefaultExchangeResultDataConvertor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager, IExchangeResultDataConvertor convertor) {
+        return new AutoApplyExchangeStrategy(properties, exchangeManager, convertor);
     }
 
     @Bean

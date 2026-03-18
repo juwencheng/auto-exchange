@@ -8,6 +8,7 @@ import io.github.juwencheng.autoexchange.core.IApplyExchange;
 import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
 import io.github.juwencheng.autoexchange.core.context.AutoExchangeContext;
 import io.github.juwencheng.autoexchange.core.context.AutoExchangeContextHolder;
+import io.github.juwencheng.autoexchange.core.convertor.IExchangeResultDataConvertor;
 import io.github.juwencheng.autoexchange.core.dto.ExchangeInfoRateDto;
 import io.github.juwencheng.autoexchange.core.dto.ExchangeResultDto;
 import io.github.juwencheng.autoexchange.core.manager.ExchangeManager;
@@ -25,10 +26,12 @@ import java.util.*;
 public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy implements IApplyExchangeStrategy {
     private static final Logger log = LoggerFactory.getLogger(AutoApplyExchangeStrategy.class);
     private final ExchangeManager exchangeManager;
+    private final IExchangeResultDataConvertor convertor;
 
-    public AutoApplyExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
+    public AutoApplyExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager, IExchangeResultDataConvertor convertor) {
         super(properties);
         this.exchangeManager = exchangeManager;
+        this.convertor = convertor;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class AutoApplyExchangeStrategy extends AbstractApplyExchangeStrategy imp
                 if (newFieldName == null || newFieldName.trim().isEmpty()) {
                     newFieldName = exchangeableField.getName() + "AutoExchange";
                 }
-                context.addAppendedData(object, newFieldName, exchangeResult.toMap());
+                context.addAppendedData(object, newFieldName, convertor.convert(exchangeResult));
             } catch (IllegalAccessException e) {
                 log.error("对@AutoExchangeField注解标注的属性进行自动换汇失败：" + object.getClass() + "." + exchangeableField.getName(), e);
                 throw new ExchangeProcessingException("对@AutoExchangeField注解标注的属性进行自动换汇失败：" + object.getClass() + "." + exchangeableField.getName(), e);
