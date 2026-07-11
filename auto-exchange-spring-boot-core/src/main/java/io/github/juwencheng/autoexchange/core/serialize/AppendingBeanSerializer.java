@@ -18,6 +18,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @deprecated 请使用 {@link io.github.juwencheng.autoexchange.core.translate.TranslateAppendingBeanSerializer}，
+ * 它同时支持旧有的 AutoExchangeContext 和新的 TranslateContext。
+ */
+@Deprecated
 public class AppendingBeanSerializer extends BeanSerializer {
     public AppendingBeanSerializer(BeanSerializerBase src) {
         super(src);
