@@ -2,19 +2,20 @@ package io.github.juwencheng.autoexchange.autoconfigure;
 
 import io.github.juwencheng.autoexchange.autoconfigure.validation.RateRefreshConfigurationValidator;
 import io.github.juwencheng.autoexchange.core.interceptor.AutoExchangeInterceptor;
+import io.github.juwencheng.autoexchange.core.translate.*;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.bind.annotation.RestController;
 import io.github.juwencheng.autoexchange.aspect.AutoExchangeAspect;
 import io.github.juwencheng.autoexchange.autoconfigure.exception.AutoExchangeExceptionHandler;
 import io.github.juwencheng.autoexchange.core.AutoExchangeProperties;
 import io.github.juwencheng.autoexchange.core.manager.ExchangeManager;
-import io.github.juwencheng.autoexchange.core.serialize.ExchangeBeanSerializerModifier;
 import io.github.juwencheng.autoexchange.core.strategy.AutoApplyExchangeStrategy;
 import io.github.juwencheng.autoexchange.core.strategy.IApplyExchangeStrategy;
 import io.github.juwencheng.autoexchange.provider.DefaultExchangeDataProvider;
@@ -23,14 +24,16 @@ import io.github.juwencheng.autoexchange.scheduler.DynamicRateRefreshScheduler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @Configuration
-// 只有在web程序中生效
 @ConditionalOnWebApplication
 @ConditionalOnClass({RestController.class})
 @EnableConfigurationProperties({AutoExchangeProperties.class})
 public class AutoExchangeAutoConfiguration {
 
-    // ------------- 注册应用汇率的策略方法类 ------
+    // ==================== 旧有汇率转换组件（向后兼容） ====================
+
     @Bean
     @ConditionalOnMissingBean
     public IApplyExchangeStrategy autoExchangeStrategy(AutoExchangeProperties properties, ExchangeManager exchangeManager) {
@@ -38,24 +41,73 @@ public class AutoExchangeAutoConfiguration {
     }
 
     @Bean
-    public AutoExchangeAspect autoExchangeAspect(IApplyExchangeStrategy autoApplyExchangeStrategy, AutoExchangeProperties properties) {
-        return new AutoExchangeAspect(autoApplyExchangeStrategy, properties);
+    public AutoExchangeAspect autoExchangeAspect(IApplyExchangeStrategy autoApplyExchangeStrategy, AutoExchangeProperties properties, TranslateStrategy translateStrategy) {
+        AutoExchangeAspect aspect = new AutoExchangeAspect(autoApplyExchangeStrategy, properties);
+        aspect.setTranslateStrategy(translateStrategy);
+        return aspect;
     }
 
+    @Bean
+    public AutoExchangeInterceptor exchangeContextInterceptor(AutoExchangeProperties properties) {
+        return new AutoExchangeInterceptor(properties);
+    }
+
+    // ==================== 通用翻译框架组件 ====================
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ExchangeFieldTranslator exchangeFieldTranslator(ExchangeManager exchangeManager, AutoExchangeProperties properties) {
+        return new ExchangeFieldTranslator(exchangeManager, properties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IDictDataProvider dictDataProvider() {
+        return new DefaultDictDataProvider();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DictFieldTranslator dictFieldTranslator(IDictDataProvider dictDataProvider) {
+        return new DictFieldTranslator(dictDataProvider);
+    }
+
+    @Bean
+    public ExchangeContextContributor exchangeContextContributor(AutoExchangeProperties properties) {
+        return new ExchangeContextContributor(properties);
+    }
+
+    @Bean
+    public TranslateStrategy translateStrategy(List<FieldTranslator> translators) {
+        return new TranslateStrategy(translators);
+    }
+
+    @Bean
+    public TranslateAspect translateAspect(TranslateStrategy translateStrategy, AutoExchangeProperties properties) {
+        return new TranslateAspect(translateStrategy, properties.getAspectOrder() - 1);
+    }
+
+    @Bean
+    public TranslateInterceptor translateInterceptor(List<TranslateContextContributor> contributors) {
+        return new TranslateInterceptor(contributors);
+    }
+
+    /**
+     * 统一的 Jackson BeanSerializerModifier，同时读取 AutoExchangeContext 和 TranslateContext
+     */
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer exchangeWrapperSerializerCustomizer() {
         return builder -> {
             builder.postConfigurer(objectMapper -> {
-                // ObjectMapper的SerializerFactory是负责创建和缓存序列化器的组件。
-                // 我们需要获取它，并给它加上我们的Modifier。
-                // withSerializerModifier()会返回一个新的Factory实例，所以我们需要set回去。
                 objectMapper.setSerializerFactory(
                         objectMapper.getSerializerFactory()
-                                .withSerializerModifier(new ExchangeBeanSerializerModifier())
+                                .withSerializerModifier(new TranslateBeanSerializerModifier())
                 );
             });
         };
     }
+
+    // ==================== 通用组件 ====================
 
     @Bean
     @ConditionalOnMissingBean
@@ -75,23 +127,18 @@ public class AutoExchangeAutoConfiguration {
         return new AutoExchangeExceptionHandler();
     }
 
-
     @Bean
-    public AutoExchangeInterceptor exchangeContextInterceptor(AutoExchangeProperties properties) {
-        return new AutoExchangeInterceptor(properties);
-    }
-
-    @Bean
-    public WebMvcConfigurer exchangeInterceptorConfigurer(AutoExchangeInterceptor interceptor) {
+    public WebMvcConfigurer exchangeInterceptorConfigurer(
+            AutoExchangeInterceptor exchangeInterceptor,
+            TranslateInterceptor translateInterceptor) {
         return new WebMvcConfigurer() {
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
-                // 它从Spring容器中获取已经创建好的Interceptor实例并注册
-                registry.addInterceptor(interceptor);
+                registry.addInterceptor(exchangeInterceptor);
+                registry.addInterceptor(translateInterceptor);
             }
         };
     }
-
 
     @Configuration
     @ConditionalOnProperty(prefix = "auto.exchange.rate-refresh", name = "enabled", havingValue = "true")

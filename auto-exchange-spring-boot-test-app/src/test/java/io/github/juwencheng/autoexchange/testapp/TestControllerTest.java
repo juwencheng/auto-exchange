@@ -17,11 +17,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import io.github.juwencheng.autoexchange.core.dto.ExchangeInfoRateDto;
+import io.github.juwencheng.autoexchange.core.translate.IDictDataProvider;
 import io.github.juwencheng.autoexchange.provider.IExchangeDataProvider;
 import io.github.juwencheng.autoexchange.testapp.controller.TestController;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "auto.exchange.rate-refresh.enabled=false"
 })
 @EnableScheduling
-// 启用 AOP，不显式指定Aspect无法生效
 @EnableAspectJAutoProxy
 public class TestControllerTest {
     @Autowired
@@ -57,10 +59,31 @@ public class TestControllerTest {
         @Primary
         public IExchangeDataProvider mockExchangeRateService() {
             IExchangeDataProvider mock = Mockito.mock(IExchangeDataProvider.class);
-            // 设置默认行为
             when(mock.fetchData())
                     .thenReturn(List.of(new ExchangeInfoRateDto("USD", "CNY", BigDecimal.valueOf(8)),new ExchangeInfoRateDto("CNY", "USD", BigDecimal.valueOf(0.2)), new ExchangeInfoRateDto("CNY", "CNY", BigDecimal.valueOf(1))));
             return mock;
+        }
+
+        @Bean
+        @Primary
+        public IDictDataProvider mockDictDataProvider() {
+            return (dictType, key) -> {
+                Map<String, Map<String, String>> data = new HashMap<>();
+                Map<String, String> orderStatus = new HashMap<>();
+                orderStatus.put("0", "待支付");
+                orderStatus.put("1", "已支付");
+                orderStatus.put("2", "已发货");
+                orderStatus.put("3", "已完成");
+                data.put("order_status", orderStatus);
+
+                Map<String, String> paymentType = new HashMap<>();
+                paymentType.put("ALIPAY", "支付宝");
+                paymentType.put("WECHAT", "微信支付");
+                data.put("payment_type", paymentType);
+
+                Map<String, String> dict = data.get(dictType);
+                return dict != null ? dict.get(key) : null;
+            };
         }
     }
 
@@ -167,5 +190,42 @@ public class TestControllerTest {
                 .andDo(print());
     }
 
+    @Test
+    @DisplayName("测试汇率转换和字典翻译共存（@AutoExchangeResponse 触发两者）")
+    void testOrderWithDictAndExchange() throws Exception {
+        mockMvc.perform(get("/test/orderWithDict")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.orderId").value("ORDER-100"))
+                .andExpect(jsonPath("$.amount").value(500.00))
+                .andExpect(jsonPath("$.status").value(1))
+                .andExpect(jsonPath("$.paymentType").value("ALIPAY"))
+                // 汇率转换结果（通过旧的 @AutoExchangeField）
+                .andExpect(jsonPath("$.amountInCny.price").exists())
+                .andExpect(jsonPath("$.amountInCny.base").value("USD"))
+                .andExpect(jsonPath("$.amountInCny.trans").value("CNY"))
+                // 字典翻译结果（通过新的 @TranslateField + DictFieldTranslator）
+                .andExpect(jsonPath("$.statusText").value("已支付"))
+                .andExpect(jsonPath("$.paymentTypeText").value("支付宝"))
+                .andDo(print());
+    }
 
+    @Test
+    @DisplayName("测试纯通用翻译（@TranslateResponse 只触发 @TranslateField）")
+    void testTranslateOnly() throws Exception {
+        mockMvc.perform(get("/test/translateOnly")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.orderId").value("ORDER-100"))
+                .andExpect(jsonPath("$.status").value(1))
+                .andExpect(jsonPath("$.paymentType").value("ALIPAY"))
+                // 字典翻译结果
+                .andExpect(jsonPath("$.statusText").value("已支付"))
+                .andExpect(jsonPath("$.paymentTypeText").value("支付宝"))
+                // @TranslateResponse 不触发旧的汇率转换
+                .andExpect(jsonPath("$.amountInCny").doesNotExist())
+                .andDo(print());
+    }
 }

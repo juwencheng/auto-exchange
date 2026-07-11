@@ -30,6 +30,7 @@
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
         <google-truth.version>1.1.3</google-truth.version>
+        <springdoc.version>1.7.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +85,12 @@
                 <groupId>com.google.truth</groupId>
                 <artifactId>truth</artifactId>
                 <version>${google-truth.version}</version>
+            </dependency>
+            <!-- SpringDoc OpenAPI -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -189,6 +196,7 @@
                 <module>auto-exchange-spring-boot-core</module>
                 <module>auto-exchange-spring-boot-processor</module>
                 <module>auto-exchange-spring-boot-autoconfigure</module>
+                <module>auto-exchange-spring-boot-openapi</module>
                 <module>auto-exchange-spring-boot-starter</module>
                 <module>auto-exchange-spring-boot-test-app</module>
             </modules>
@@ -200,6 +208,7 @@
                 <module>auto-exchange-spring-boot-core</module>
                 <module>auto-exchange-spring-boot-processor</module>
                 <module>auto-exchange-spring-boot-autoconfigure</module>
+                <module>auto-exchange-spring-boot-openapi</module>
                 <module>auto-exchange-spring-boot-starter</module>
             </modules>
             <build>

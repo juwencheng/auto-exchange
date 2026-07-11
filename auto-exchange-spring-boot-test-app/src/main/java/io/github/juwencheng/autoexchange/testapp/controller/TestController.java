@@ -4,6 +4,7 @@ import io.github.juwencheng.autoexchange.testapp.dto.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeResponse;
+import io.github.juwencheng.autoexchange.core.translate.TranslateResponse;
 
 @RestController
 public class TestController {
@@ -39,5 +40,17 @@ public class TestController {
     @AutoExchangeResponse
     public UserWishlist getUserWishlist() {
         return new UserWishlist();
+    }
+
+    @GetMapping("/test/orderWithDict")
+    @AutoExchangeResponse
+    public OrderWithDict getOrderWithDict() {
+        return new OrderWithDict();
+    }
+
+    @GetMapping("/test/translateOnly")
+    @TranslateResponse
+    public OrderWithDict getTranslateOnly() {
+        return new OrderWithDict();
     }
 }
