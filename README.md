@@ -74,15 +74,7 @@
 </dependency>
 ```
 
-如需 OpenAPI 文档增强，额外引入：
-
-```xml
-<dependency>
-    <groupId>io.github.juwencheng</groupId>
-    <artifactId>auto-exchange-spring-boot-openapi</artifactId>
-    <version>0.3.4</version>
-</dependency>
-```
+如需 OpenAPI 文档增强，见下方 [OpenAPI 文档增强](#openapi-文档增强)。
 
 ### 2. 启用框架
 
@@ -458,9 +450,77 @@ public class RegionTranslateCacheStrategy implements TranslateCacheStrategy {
 
 ### OpenAPI 文档增强
 
-Append 模式下 JSON 输出结构与 Java DTO 类不一致，Swagger 自动生成的文档无法反映实际响应字段。引入 `auto-exchange-spring-boot-openapi` 模块后，框架会通过 springdoc 的 `OperationCustomizer` 自动在 API 文档中描述动态追加的虚拟字段。
+Append 模式下 JSON 输出结构与 Java DTO 类不一致，Swagger 自动生成的文档无法反映实际响应字段。引入 `auto-exchange-spring-boot-openapi` 后，框架通过 springdoc 的 `OperationCustomizer`，在标注了 `@AutoExchangeResponse` / `@TranslateResponse` 的接口 description 中追加「动态追加字段」说明表。
 
-该模块仅在项目引入 springdoc 依赖时激活（`@ConditionalOnClass`），不影响未使用 Swagger 的项目。
+#### 集成步骤
+
+**1. 添加依赖**
+
+同时引入本模块与 springdoc UI（Spring Boot 2.x 使用 `springdoc-openapi-ui`）：
+
+```xml
+<dependency>
+    <groupId>io.github.juwencheng</groupId>
+    <artifactId>auto-exchange-spring-boot-openapi</artifactId>
+    <version>0.3.4</version>
+</dependency>
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-ui</artifactId>
+    <version>1.7.0</version>
+</dependency>
+```
+
+> 仅引入 openapi 模块、未引入 springdoc 时不会生效（`@ConditionalOnClass`），也不影响未使用 Swagger 的项目。
+
+**2. 导入自动配置**
+
+当前版本需在启动类上显式导入配置（尚未注册 `spring.factories`）：
+
+```java
+import io.github.juwencheng.autoexchange.openapi.TranslateOpenApiAutoConfiguration;
+import org.springframework.context.annotation.Import;
+
+@SpringBootApplication
+@EnableAutoExchange
+@Import(TranslateOpenApiAutoConfiguration.class)
+public class MyApplication {
+    // ...
+}
+```
+
+**3. 启动后查看文档**
+
+访问 `http://localhost:<port>/swagger-ui/index.html`（或 `/swagger-ui.html` 会跳转）。在带翻译注解的接口详情中，可看到类似：
+
+```text
+**动态追加字段（Append 模式）：**
+
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| `priceInCny` | Object{base, trans, rate, price} | 汇率转换结果（源自字段 priceUsd） |
+| `statusText` | dynamic | 由 DictFieldTranslator 翻译 (args: order_status) |
+```
+
+完整示例见仓库内 `auto-exchange-spring-boot-test-app` 模块。
+
+#### 注意事项
+
+若项目将 `jackson-databind` 升级到 2.16+，而 Spring Boot 2.7 仍拉取 2.13.x 的 `jackson-core`，生成 `/v3/api-docs` 可能出现 `NoSuchMethodError`。可在业务模块中通过 `jackson-bom` 对齐全套 Jackson 版本：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson</groupId>
+            <artifactId>jackson-bom</artifactId>
+            <version>2.18.3</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
 
 ## 📋 注解参考
 
