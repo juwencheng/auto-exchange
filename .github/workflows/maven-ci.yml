@@ -1,0 +1,28 @@
+name: Maven CI
+
+on:
+  push:
+    branches: [main, 'cursor/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Install field-translate (SNAPSHOT)
+        run: |
+          git clone --depth 1 https://github.com/juwencheng/field-translate.git /tmp/field-translate
+          mvn -B install -f /tmp/field-translate/pom.xml -DskipTests --no-transfer-progress
+
+      - name: Build and test
+        run: mvn -B verify --no-transfer-progress

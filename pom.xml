@@ -148,6 +148,7 @@
                         <encoding>UTF-8</encoding>
                         <charset>UTF-8</charset>
                         <docencoding>UTF-8</docencoding>
+                        <doclint>none</doclint>
                     </configuration>
                     <executions>
                         <execution>
@@ -184,6 +185,15 @@
                 <module>auto-exchange-spring-boot-openapi</module>
                 <module>auto-exchange-spring-boot-starter</module>
                 <module>auto-exchange-spring-boot-test-app</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>deploy</id>
+            <modules>
+                <module>auto-exchange-spring-boot-core</module>
+                <module>auto-exchange-spring-boot-autoconfigure</module>
+                <module>auto-exchange-spring-boot-openapi</module>
+                <module>auto-exchange-spring-boot-starter</module>
             </modules>
         </profile>
         <profile>
