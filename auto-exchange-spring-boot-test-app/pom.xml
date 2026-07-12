@@ -6,39 +6,28 @@
     <parent>
         <groupId>io.github.juwencheng</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>0.3.4</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>auto-exchange-spring-boot-test-app</artifactId>
-    <version>0.3.4</version>
     <name>Auto Exchange Spring Boot Test App</name>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>io.github.juwencheng</groupId>
             <artifactId>auto-exchange-spring-boot-starter</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.juwencheng</groupId>
+            <artifactId>field-translate-dict</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.juwencheng</groupId>
             <artifactId>auto-exchange-spring-boot-openapi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

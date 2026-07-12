@@ -1,49 +1,49 @@
 package io.github.juwencheng.autoexchange.testapp.controller;
 
 import io.github.juwencheng.autoexchange.testapp.dto.*;
+import io.github.juwencheng.fieldtranslate.core.translate.TranslateResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeResponse;
-import io.github.juwencheng.autoexchange.core.translate.TranslateResponse;
 
 @RestController
 public class TestController {
+
     @GetMapping("/test/simple")
-    @AutoExchangeResponse
+    @TranslateResponse
     public Object getSimpleProduct() {
         return new Product();
     }
 
     @GetMapping("/test/nested")
-    @AutoExchangeResponse
+    @TranslateResponse
     public Order getNestedOrder() {
         return new Order();
     }
 
     @GetMapping("/test/cycle")
-    @AutoExchangeResponse
+    @TranslateResponse
     public CycleNode getCyclicNode() {
         CycleNode parent = new CycleNode("parent");
         CycleNode child = new CycleNode("child");
         parent.setChild(child);
-        child.setChild(parent); // A -> B -> A
+        child.setChild(parent);
         return parent;
     }
 
     @GetMapping("test/inventory")
-    @AutoExchangeResponse
+    @TranslateResponse
     public StoreInventory getStoreInventory() {
         return new StoreInventory();
     }
 
     @GetMapping("test/userWishList")
-    @AutoExchangeResponse
+    @TranslateResponse
     public UserWishlist getUserWishlist() {
         return new UserWishlist();
     }
 
     @GetMapping("/test/orderWithDict")
-    @AutoExchangeResponse
+    @TranslateResponse
     public OrderWithDict getOrderWithDict() {
         return new OrderWithDict();
     }

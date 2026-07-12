@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import io.github.juwencheng.autoexchange.core.AutoExchangeProperties;
+import io.github.juwencheng.autoexchange.exchange.ExchangeProperties;
 import io.github.juwencheng.autoexchange.core.dto.ExchangeInfoRateDto;
 import io.github.juwencheng.autoexchange.provider.IExchangeDataProvider;
 
@@ -19,7 +19,7 @@ public class ExchangeManager implements ApplicationListener<ApplicationReadyEven
     private final AtomicReference<Map<String, ExchangeInfoRateDto>> cache = new AtomicReference<>();
     private final boolean refreshOnLaunch;
 
-    public ExchangeManager(IExchangeDataProvider dataProvider, AutoExchangeProperties properties) {
+    public ExchangeManager(IExchangeDataProvider dataProvider, ExchangeProperties properties) {
         this.dataProvider = dataProvider;
         this.refreshOnLaunch = properties.isRefreshOnLaunch();
         // 确保不为空

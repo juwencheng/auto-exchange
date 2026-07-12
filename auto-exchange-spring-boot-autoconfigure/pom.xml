@@ -6,39 +6,34 @@
     <parent>
         <groupId>io.github.juwencheng</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>0.3.4</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <name>Auto Exchange Spring Boot AutoConfigure</name>
-    <description>自动汇率转换自动配置</description>
 
     <artifactId>auto-exchange-spring-boot-autoconfigure</artifactId>
-    <version>0.3.4</version>
+    <name>Auto Exchange Spring Boot AutoConfigure</name>
+    <description>汇率转换插件自动配置</description>
 
     <dependencies>
-        <!-- 核心自动配置依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
-        <!-- AOP -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-        <!-- 核心 -->
         <dependency>
             <groupId>io.github.juwencheng</groupId>
             <artifactId>auto-exchange-spring-boot-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
-        <!-- Jackson是首选JSON工具 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>io.github.juwencheng</groupId>
+            <artifactId>field-translate-spring-boot-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.juwencheng</groupId>
+            <artifactId>field-translate-spring-boot-autoconfigure</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -46,34 +41,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test-autoconfigure</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
     <build>
         <plugins>
-            <!-- 源码插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-
-            <!-- Javadoc插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
-
 
 </project>

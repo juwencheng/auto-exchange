@@ -1,6 +1,6 @@
 package io.github.juwencheng.autoexchange.testapp.provider;
 
-import io.github.juwencheng.autoexchange.core.translate.IDictDataProvider;
+import io.github.juwencheng.fieldtranslate.dict.IDictDataProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

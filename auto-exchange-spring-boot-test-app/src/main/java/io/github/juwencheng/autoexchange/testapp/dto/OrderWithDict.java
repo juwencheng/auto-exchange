@@ -1,16 +1,14 @@
 package io.github.juwencheng.autoexchange.testapp.dto;
 
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency;
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
-import io.github.juwencheng.autoexchange.core.translate.DictFieldTranslator;
-import io.github.juwencheng.autoexchange.core.translate.ExchangeFieldTranslator;
-import io.github.juwencheng.autoexchange.core.translate.TranslateField;
+import io.github.juwencheng.autoexchange.exchange.ExchangeBaseCurrency;
+import io.github.juwencheng.autoexchange.exchange.ExchangeFieldTranslator;
+import io.github.juwencheng.fieldtranslate.core.translate.TranslateField;
+import io.github.juwencheng.fieldtranslate.dict.DictFieldTranslator;
 
 import java.math.BigDecimal;
 
 /**
- * 演示 DTO：同时使用旧的 @AutoExchangeField 和新的 @TranslateField 注解。
- * 展示汇率转换和字典翻译两种翻译器在同一对象上共存的能力。
+ * 演示 DTO：同时使用汇率转换和字典翻译。
  *
  * @author juwencheng
  */
@@ -18,10 +16,10 @@ public class OrderWithDict {
 
     private String orderId = "ORDER-100";
 
-    @AutoExchangeField("amountInCny")
+    @TranslateField(value = "amountInCny", translator = ExchangeFieldTranslator.class)
     private BigDecimal amount = new BigDecimal("500.00");
 
-    @AutoExchangeBaseCurrency
+    @ExchangeBaseCurrency
     private String currency = "USD";
 
     @TranslateField(value = "statusText", translator = DictFieldTranslator.class, args = "order_status")

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
-import io.github.juwencheng.autoexchange.core.AutoExchangeProperties;
+import io.github.juwencheng.autoexchange.exchange.ExchangeProperties;
 import io.github.juwencheng.autoexchange.core.manager.ExchangeManager;
 
 import java.util.TimeZone;
@@ -15,9 +15,9 @@ public class DynamicRateRefreshScheduler implements ApplicationListener<Applicat
     private static final Logger log = LoggerFactory.getLogger(DynamicRateRefreshScheduler.class);
     private final TaskScheduler taskScheduler;
     private final ExchangeManager exchangeManager;
-    private final AutoExchangeProperties properties;
+    private final ExchangeProperties properties;
 
-    public DynamicRateRefreshScheduler(TaskScheduler taskScheduler, ExchangeManager exchangeManager, AutoExchangeProperties properties) {
+    public DynamicRateRefreshScheduler(TaskScheduler taskScheduler, ExchangeManager exchangeManager, ExchangeProperties properties) {
         this.taskScheduler = taskScheduler;
         this.exchangeManager = exchangeManager;
         this.properties = properties;
@@ -25,7 +25,7 @@ public class DynamicRateRefreshScheduler implements ApplicationListener<Applicat
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        AutoExchangeProperties.RateRefresh refreshConfig = properties.getRateRefresh();
+        ExchangeProperties.RateRefresh refreshConfig = properties.getRateRefresh();
 
         // 再次确认是否启用 (虽然Bean的创建已经有条件判断，但这里更明确)
         if (refreshConfig.isEnabled()) {

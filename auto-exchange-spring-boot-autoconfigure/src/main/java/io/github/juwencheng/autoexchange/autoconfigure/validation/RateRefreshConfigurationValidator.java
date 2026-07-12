@@ -1,6 +1,6 @@
 package io.github.juwencheng.autoexchange.autoconfigure.validation;
 
-import io.github.juwencheng.autoexchange.core.AutoExchangeProperties;
+import io.github.juwencheng.autoexchange.exchange.ExchangeProperties;
 import io.github.juwencheng.autoexchange.exception.ExchangeConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,9 @@ import org.springframework.scheduling.TaskScheduler;
 public class RateRefreshConfigurationValidator implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(RateRefreshConfigurationValidator.class);
     private final ApplicationContext applicationContext;
-    private final AutoExchangeProperties properties;
+    private final ExchangeProperties properties;
 
-    public RateRefreshConfigurationValidator(ApplicationContext applicationContext, AutoExchangeProperties properties) {
+    public RateRefreshConfigurationValidator(ApplicationContext applicationContext, ExchangeProperties properties) {
         this.applicationContext = applicationContext;
         this.properties = properties;
     }

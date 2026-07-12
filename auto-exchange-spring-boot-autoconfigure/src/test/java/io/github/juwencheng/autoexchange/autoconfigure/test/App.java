@@ -1,13 +1,9 @@
 package io.github.juwencheng.autoexchange.autoconfigure.test;
 
-import org.springframework.boot.SpringApplication;
+import io.github.juwencheng.fieldtranslate.autoconfigure.annotation.EnableFieldTranslate;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import io.github.juwencheng.autoexchange.autoconfigure.annotation.EnableAutoExchange;
 
 @SpringBootApplication
-@EnableAutoExchange
+@EnableFieldTranslate
 public class App {
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
-    }
 }
