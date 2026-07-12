@@ -11,4 +11,8 @@ auto:
     default-target-currency: CNY
     target-currency-param-name: currency
     target-currency-header-name: X-Target-Currency
-    aspect-order: 2147483647
+    translate-cache:
+      enabled: true
+      exchange-ttl: 1d
+server:
+  port: 9999

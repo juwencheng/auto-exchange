@@ -2,16 +2,17 @@ package io.github.juwencheng.autoexchange.testapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
+import io.github.juwencheng.autoexchange.exchange.ExchangeFieldTranslator;
+import io.github.juwencheng.fieldtranslate.core.translate.TranslateField;
 
 import java.math.BigDecimal;
 
-// 为循环引用创建一个带@JsonIdentityInfo注解的新DTO
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@ref")
 public class CycleNode {
     private String name;
     private CycleNode child;
-    @AutoExchangeField("valueInCny")
+
+    @TranslateField(value = "valueInCny", translator = ExchangeFieldTranslator.class)
     private BigDecimal value = new BigDecimal("50.00");
 
     public CycleNode(String name) {

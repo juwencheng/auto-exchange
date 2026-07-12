@@ -1,20 +1,22 @@
 package io.github.juwencheng.autoexchange.testapp.dto;
 
-import io.github.juwencheng.autoexchange.core.IApplyExchange;
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeBaseCurrency;
-import io.github.juwencheng.autoexchange.core.annotation.AutoExchangeField;
+import io.github.juwencheng.autoexchange.exchange.ExchangeBaseCurrency;
+import io.github.juwencheng.autoexchange.exchange.ExchangeFieldTranslator;
+import io.github.juwencheng.fieldtranslate.core.translate.TranslateField;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
-public class Product implements IApplyExchange {
+public class Product {
     public Long id = 1L;
     public String name = "Test Product";
-    @AutoExchangeField("priceInCny")
+
+    @TranslateField(value = "priceInCny", translator = ExchangeFieldTranslator.class)
     public BigDecimal priceUsd = new BigDecimal("100.00");
-    @AutoExchangeField
+
+    @TranslateField(translator = ExchangeFieldTranslator.class)
     public BigDecimal anotherPriceUsd = new BigDecimal("200.00");
-    @AutoExchangeBaseCurrency
+
+    @ExchangeBaseCurrency
     private String currency;
 
     public Long getId() {
@@ -33,11 +35,6 @@ public class Product implements IApplyExchange {
         return anotherPriceUsd;
     }
 
-    @Override
-    public void applyExchange(String targetCurrency, Optional<BigDecimal> rate) {
-        this.anotherPriceUsd = anotherPriceUsd.multiply(rate.orElse(BigDecimal.ZERO));
-    }
-
     public String getCurrency() {
         return currency;
     }
@@ -46,14 +43,3 @@ public class Product implements IApplyExchange {
         this.currency = currency;
     }
 }
-
-
-
-
-
-
-
-
-
-
-

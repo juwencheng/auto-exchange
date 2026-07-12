@@ -6,27 +6,25 @@
     <parent>
         <groupId>io.github.juwencheng</groupId>
         <artifactId>auto-exchange</artifactId>
-        <version>0.3.4</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>auto-exchange-spring-boot-starter</artifactId>
-    <version>0.3.4</version>
     <name>Auto Exchange Spring Boot Starter</name>
+    <description>汇率转换插件 Spring Boot Starter</description>
+
     <dependencies>
         <dependency>
             <groupId>io.github.juwencheng</groupId>
+            <artifactId>field-translate-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.juwencheng</groupId>
             <artifactId>auto-exchange-spring-boot-autoconfigure</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.juwencheng</groupId>
             <artifactId>auto-exchange-spring-boot-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.juwencheng</groupId>
-            <artifactId>auto-exchange-spring-boot-processor</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
