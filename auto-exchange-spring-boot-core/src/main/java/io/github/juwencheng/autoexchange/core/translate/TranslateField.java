@@ -37,4 +37,14 @@ public @interface TranslateField {
      * @return 翻译参数数组
      */
     String[] args() default {};
+
+    /**
+     * 缓存策略。默认 {@link io.github.juwencheng.autoexchange.core.translate.cache.DefaultTranslateCacheStrategy}，
+     * 表示使用该翻译器注册的默认缓存策略。
+     * 设为 {@link io.github.juwencheng.autoexchange.core.translate.cache.NoCacheStrategy} 可显式禁用缓存。
+     *
+     * @return 缓存策略类
+     */
+    Class<? extends io.github.juwencheng.autoexchange.core.translate.cache.TranslateCacheStrategy> cacheStrategy()
+            default io.github.juwencheng.autoexchange.core.translate.cache.DefaultTranslateCacheStrategy.class;
 }

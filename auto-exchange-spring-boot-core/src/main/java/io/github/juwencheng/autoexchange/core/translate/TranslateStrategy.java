@@ -2,6 +2,7 @@ package io.github.juwencheng.autoexchange.core.translate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.github.juwencheng.autoexchange.core.translate.cache.TranslateCacheManager;
 import io.github.juwencheng.autoexchange.exception.ExchangeProcessingException;
 
 import java.beans.Introspector;
@@ -26,12 +27,14 @@ public class TranslateStrategy {
     private static final Map<Class<?>, TranslateClassMetadata> CLASS_METADATA_CACHE = new ConcurrentHashMap<>(256);
 
     private final Map<Class<? extends FieldTranslator>, FieldTranslator> translatorInstances;
+    private final TranslateCacheManager cacheManager;
 
-    public TranslateStrategy(List<FieldTranslator> translators) {
+    public TranslateStrategy(List<FieldTranslator> translators, TranslateCacheManager cacheManager) {
         this.translatorInstances = new HashMap<>();
         for (FieldTranslator translator : translators) {
             this.translatorInstances.put(translator.getClass(), translator);
         }
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -82,7 +85,14 @@ public class TranslateStrategy {
                 fieldContext.setAttribute("_sourceObject", object);
                 fieldContext.setAttribute("_field", field);
 
-                Object result = translator.translate(fieldValue, fieldContext);
+                Object result = cacheManager.translateWithCache(
+                        translator,
+                        fieldMeta.getTranslatorClass(),
+                        fieldMeta.getCacheStrategyClass(),
+                        fieldValue,
+                        fieldContext,
+                        fieldMeta.getArgs(),
+                        field);
                 if (result != null) {
                     context.addAppendedData(object, fieldMeta.getOutputFieldName(), result);
                 }
@@ -141,7 +151,8 @@ public class TranslateStrategy {
                         outputName = field.getName() + "Translated";
                     }
                     translateFields.add(new TranslateFieldMeta(
-                            field, outputName, annotation.translator(), annotation.args()));
+                            field, outputName, annotation.translator(), annotation.args(),
+                            annotation.cacheStrategy()));
                 }
             }
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import io.github.juwencheng.autoexchange.core.enums.MissingRateStrategy;
 
 import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
+import java.time.Duration;
 
 @Validated // 启用JSR-303校验
 @ConfigurationProperties(prefix = "auto.exchange")
@@ -47,6 +48,12 @@ public class AutoExchangeProperties {
     private final RateRefresh rateRefresh = new RateRefresh();
 
     private final MissingRate missingRate = new MissingRate();
+
+    private final TranslateCache translateCache = new TranslateCache();
+
+    public TranslateCache getTranslateCache() {
+        return translateCache;
+    }
 
     public RateRefresh getRateRefresh() {
         return rateRefresh;
@@ -159,5 +166,57 @@ public class AutoExchangeProperties {
 
     public MissingRate getMissingRate() {
         return missingRate;
+    }
+
+    /**
+     * 翻译结果缓存配置（作用于 {@link io.github.juwencheng.autoexchange.core.translate.TranslateField} 翻译链路）
+     */
+    public static class TranslateCache {
+        /**
+         * 是否启用翻译结果缓存
+         */
+        private boolean enabled = true;
+
+        /**
+         * 字典翻译默认 TTL
+         */
+        private Duration dictTtl = Duration.ofHours(1);
+
+        /**
+         * 汇率翻译结果默认 TTL
+         */
+        private Duration exchangeTtl = Duration.ofDays(1);
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public Duration getDictTtl() {
+            return dictTtl;
+        }
+
+        public void setDictTtl(Duration dictTtl) {
+            this.dictTtl = dictTtl;
+        }
+
+        public Duration getExchangeTtl() {
+            return exchangeTtl;
+        }
+
+        public void setExchangeTtl(Duration exchangeTtl) {
+            this.exchangeTtl = exchangeTtl;
+        }
+
+        public Duration getDictTtlDuration() {
+            return dictTtl != null ? dictTtl : Duration.ofHours(1);
+        }
+
+        public Duration getExchangeTtlDuration() {
+            return exchangeTtl != null ? exchangeTtl : Duration.ofDays(1);
+        }
     }
 }

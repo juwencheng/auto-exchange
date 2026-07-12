@@ -298,6 +298,12 @@ auto:
 
     aspect-order: 2147483647
 
+    # 翻译结果缓存（@TranslateField 链路）
+    translate-cache:
+      enabled: true
+      dict-ttl: 1h      # 字典翻译默认缓存 1 小时
+      exchange-ttl: 1d  # 汇率翻译结果默认缓存 1 天
+
     rate-refresh:
       enabled: false
       cron: "0 0 1 * * ?"
@@ -340,6 +346,8 @@ public class MyApplication { }
 | `IDictDataProvider` | 对接字典表或缓存 |
 | `TranslateContextContributor` | 向翻译上下文贡献请求级属性（如 locale） |
 | `FieldTranslator` | 实现自定义翻译逻辑 |
+| `TranslateCacheStrategy` | 定义缓存 key、TTL、存储绑定 |
+| `TranslateCacheStore` | 实现缓存存储（内存、Redis 等） |
 
 ### 自定义翻译器
 
@@ -374,6 +382,79 @@ private String regionCode;
 ```
 
 对象图遍历逻辑无需重复编写，`BeanSerializerModifier` 只有一个，ThreadLocal 上下文统一管理。
+
+### 翻译缓存策略
+
+框架提供**可插拔的翻译结果缓存**，支持按翻译器/注解分别配置 TTL 和存储后端。
+
+#### 两层缓存说明
+
+| 层级 | 作用范围 | 实现 | 典型 TTL |
+|------|----------|------|----------|
+| **数据源缓存** | 汇率全量表 | `ExchangeManager` 内存 Map | 由定时刷新 CRON 决定（如 1 天） |
+| **翻译结果缓存** | 单个 `@TranslateField` 的 translate 输出 | `TranslateCacheManager` | 字典 1h / 汇率结果 1d（可配） |
+
+字典翻译只有翻译结果缓存层；汇率场景两层并存。
+
+#### 默认行为
+
+- **存储**：默认 `InMemoryTranslateCacheStore`（进程内内存）
+- **策略绑定**：
+  - `DictFieldTranslator` → `DictTranslateCacheStrategy`，key：`dict:{dictType}:{key}`，TTL 1h
+  - `ExchangeFieldTranslator` → `ExchangeTranslateCacheStrategy`，key：`exchange:{base}:{target}:{value}`，TTL 1d
+- **注解级覆盖**：在 `@TranslateField` 上指定 `cacheStrategy`
+
+```java
+// 使用翻译器默认策略（字典 1h）
+@TranslateField(value = "statusText", translator = DictFieldTranslator.class, args = "order_status")
+private Integer status;
+
+// 显式禁用缓存
+@TranslateField(value = "statusText", translator = DictFieldTranslator.class,
+        args = "order_status", cacheStrategy = NoCacheStrategy.class)
+private Integer status;
+
+// 自定义策略（自行实现 TranslateCacheStrategy）
+@TranslateField(value = "regionName", translator = RegionFieldTranslator.class,
+        cacheStrategy = RegionTranslateCacheStrategy.class)
+private String regionCode;
+```
+
+#### 自定义 Redis 存储
+
+实现 `TranslateCacheStore` 并注册为 Spring Bean，`name()` 返回 `"redis"`；在自定义 `TranslateCacheStrategy` 中 `storeName()` 返回 `"redis"` 即可绑定：
+
+```java
+@Component
+public class RedisTranslateCacheStore implements TranslateCacheStore {
+    @Override
+    public String name() { return "redis"; }
+
+    @Override
+    public Optional<Object> get(String key) { /* ... */ }
+
+    @Override
+    public void put(String key, Object value, Duration ttl) { /* ... */ }
+
+    @Override
+    public void evict(String key) { /* ... */ }
+}
+
+public class RegionTranslateCacheStrategy implements TranslateCacheStrategy {
+    @Override
+    public String storeName() { return "redis"; }
+
+    @Override
+    public Duration ttl() { return Duration.ofMinutes(30); }
+
+    @Override
+    public String buildKey(TranslateCacheKeyContext ctx) {
+        return "region:" + ctx.getFieldValue();
+    }
+}
+```
+
+框架只约定 **key 构建** 和 **TTL** 的 SPI；具体存内存还是 Redis 由 `TranslateCacheStore` 实现决定。
 
 ### OpenAPI 文档增强
 

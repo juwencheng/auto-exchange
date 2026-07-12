@@ -3,6 +3,7 @@ package io.github.juwencheng.autoexchange.autoconfigure;
 import io.github.juwencheng.autoexchange.autoconfigure.validation.RateRefreshConfigurationValidator;
 import io.github.juwencheng.autoexchange.core.interceptor.AutoExchangeInterceptor;
 import io.github.juwencheng.autoexchange.core.translate.*;
+import io.github.juwencheng.autoexchange.core.translate.cache.*;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -77,9 +78,45 @@ public class AutoExchangeAutoConfiguration {
         return new ExchangeContextContributor(properties);
     }
 
+    // ==================== 翻译缓存组件 ====================
+
     @Bean
-    public TranslateStrategy translateStrategy(List<FieldTranslator> translators) {
-        return new TranslateStrategy(translators);
+    @ConditionalOnMissingBean
+    public InMemoryTranslateCacheStore inMemoryTranslateCacheStore() {
+        return new InMemoryTranslateCacheStore();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DictTranslateCacheStrategy dictTranslateCacheStrategy(AutoExchangeProperties properties) {
+        return new DictTranslateCacheStrategy(properties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ExchangeTranslateCacheStrategy exchangeTranslateCacheStrategy(AutoExchangeProperties properties) {
+        return new ExchangeTranslateCacheStrategy(properties);
+    }
+
+    @Bean
+    public TranslateCacheStrategyRegistry translateCacheStrategyRegistry(
+            List<TranslateCacheStrategy> strategies,
+            DictTranslateCacheStrategy dictStrategy,
+            ExchangeTranslateCacheStrategy exchangeStrategy) {
+        return new TranslateCacheStrategyRegistry(strategies, dictStrategy, exchangeStrategy);
+    }
+
+    @Bean
+    public TranslateCacheManager translateCacheManager(
+            TranslateCacheStrategyRegistry strategyRegistry,
+            List<TranslateCacheStore> stores,
+            AutoExchangeProperties properties) {
+        return new TranslateCacheManager(strategyRegistry, stores, properties);
+    }
+
+    @Bean
+    public TranslateStrategy translateStrategy(List<FieldTranslator> translators, TranslateCacheManager cacheManager) {
+        return new TranslateStrategy(translators, cacheManager);
     }
 
     @Bean

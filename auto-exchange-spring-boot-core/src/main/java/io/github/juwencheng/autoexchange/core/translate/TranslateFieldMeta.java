@@ -13,12 +13,16 @@ public class TranslateFieldMeta {
     private final String outputFieldName;
     private final Class<? extends FieldTranslator> translatorClass;
     private final String[] args;
+    private final Class<? extends io.github.juwencheng.autoexchange.core.translate.cache.TranslateCacheStrategy> cacheStrategyClass;
 
-    public TranslateFieldMeta(Field field, String outputFieldName, Class<? extends FieldTranslator> translatorClass, String[] args) {
+    public TranslateFieldMeta(Field field, String outputFieldName,
+                                Class<? extends FieldTranslator> translatorClass, String[] args,
+                                Class<? extends io.github.juwencheng.autoexchange.core.translate.cache.TranslateCacheStrategy> cacheStrategyClass) {
         this.field = field;
         this.outputFieldName = outputFieldName;
         this.translatorClass = translatorClass;
         this.args = args;
+        this.cacheStrategyClass = cacheStrategyClass;
     }
 
     public Field getField() {
@@ -35,5 +39,9 @@ public class TranslateFieldMeta {
 
     public String[] getArgs() {
         return args;
+    }
+
+    public Class<? extends io.github.juwencheng.autoexchange.core.translate.cache.TranslateCacheStrategy> getCacheStrategyClass() {
+        return cacheStrategyClass;
     }
 }
